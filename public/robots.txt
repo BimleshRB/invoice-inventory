@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Sitemap location — update NEXT_PUBLIC_SITE_URL in env for production
+Sitemap: https://example.com/sitemap.xml
+
+# Crawl-delay can be added for very large sites: Crawl-delay: 10

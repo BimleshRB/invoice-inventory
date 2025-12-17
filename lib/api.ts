@@ -1,0 +1,30 @@
+/* Simple API client wrapper for frontend to communicate with backend
+   Uses NEXT_PUBLIC_API_URL and automatically attaches Authorization header when token available. */
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
+
+export async function apiFetch(path: string, options: RequestInit = {}) {
+  const headers: Record<string,string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers as Record<string,string> || {})
+  };
+
+  // prefer token from localStorage (frontend should store token after login)
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('token') || process.env.NEXT_PUBLIC_DEV_TOKEN;
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  if (!res.ok) {
+    const text = await res.text();
+    let err;
+    try { err = JSON.parse(text); } catch(e) { err = { message: text }; }
+    const error = new Error(err?.error || err?.message || res.statusText);
+    (error as any).status = res.status;
+    throw error;
+  }
+  const contentType = res.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) return res.json();
+  return res.text();
+}
