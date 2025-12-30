@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { Edit2, Trash2, Plus } from "lucide-react"
+import { API_BASE } from "@/lib/api-client"
 
 export default function ContactsTab() {
   const [contacts, setContacts] = useState([])
@@ -47,7 +48,7 @@ export default function ContactsTab() {
     try {
       setIsLoading(true)
       const token = localStorage.getItem("token")
-      const url = new URL("http://localhost:8080/api/super-admin/contacts")
+      const url = new URL(`${API_BASE}/super-admin/contacts`)
       if (statusFilter && statusFilter !== "all") url.searchParams.append("status", statusFilter)
       if (categoryFilter && categoryFilter !== "all") url.searchParams.append("category", categoryFilter)
 
@@ -72,7 +73,7 @@ export default function ContactsTab() {
   const fetchAdmins = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch("http://localhost:8080/api/super-admin/admins", {
+      const response = await fetch(`${API_BASE}/super-admin/admins`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (response.ok) {
@@ -106,7 +107,7 @@ export default function ContactsTab() {
       }
 
       const response = await fetch(
-        `http://localhost:8080/api/super-admin/contacts/${editingId}`,
+        `${API_BASE}/super-admin/contacts/${editingId}`,
         {
           method: "PUT",
           headers: {
@@ -156,7 +157,7 @@ export default function ContactsTab() {
     try {
       const token = localStorage.getItem("token")
       const response = await fetch(
-        `http://localhost:8080/api/super-admin/contacts/${contactId}`,
+        `${API_BASE}/super-admin/contacts/${contactId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },

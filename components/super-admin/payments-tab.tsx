@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { Eye, MoreVertical } from "lucide-react"
+import { API_BASE } from "@/lib/api-client"
 
 export default function PaymentsTab() {
   const [payments, setPayments] = useState([])
@@ -26,7 +27,7 @@ export default function PaymentsTab() {
     try {
       setIsLoading(true)
       const token = localStorage.getItem("token")
-      const url = new URL("http://localhost:8080/api/super-admin/payments")
+      const url = new URL(`${API_BASE}/super-admin/payments`)
       if (statusFilter && statusFilter !== "all") url.searchParams.append("status", statusFilter)
 
       const response = await fetch(url.toString(), {
@@ -51,7 +52,7 @@ export default function PaymentsTab() {
     try {
       const token = localStorage.getItem("token")
       const response = await fetch(
-        `http://localhost:8080/api/super-admin/payments/${paymentId}/status`,
+        `${API_BASE}/super-admin/payments/${paymentId}/status`,
         {
           method: "PUT",
           headers: {

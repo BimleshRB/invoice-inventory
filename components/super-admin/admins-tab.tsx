@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { Plus, Edit2, Trash2, Eye, EyeOff, Check, X } from "lucide-react"
+import { API_BASE } from "@/lib/api-client"
 
 export default function AdminsTab() {
   const [admins, setAdmins] = useState([])
@@ -51,7 +52,7 @@ export default function AdminsTab() {
     try {
       setIsLoading(true)
       const token = localStorage.getItem("token")
-      const response = await fetch("http://localhost:8080/api/super-admin/admins", {
+      const response = await fetch(`${API_BASE}/super-admin/admins`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (response.ok) {
@@ -72,7 +73,7 @@ export default function AdminsTab() {
   const fetchStores = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch("http://localhost:8080/api/super-admin/stores", {
+      const response = await fetch(`${API_BASE}/super-admin/stores`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (response.ok) {
@@ -99,8 +100,8 @@ export default function AdminsTab() {
     try {
       const token = localStorage.getItem("token")
       const url = editingId
-        ? `http://localhost:8080/api/super-admin/admins/${editingId}`
-        : "http://localhost:8080/api/super-admin/admins"
+        ? `${API_BASE}/super-admin/admins/${editingId}`
+        : `${API_BASE}/super-admin/admins`
 
       const method = editingId ? "PUT" : "POST"
 
@@ -142,7 +143,7 @@ export default function AdminsTab() {
   const handleDelete = async (id: number) => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:8080/api/super-admin/admins/${id}`, {
+      const response = await fetch(`${API_BASE}/super-admin/admins/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -170,7 +171,7 @@ export default function AdminsTab() {
   const handleToggleStatus = async (adminId: number) => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:8080/api/super-admin/users/${adminId}/toggle`, {
+      const response = await fetch(`${API_BASE}/super-admin/users/${adminId}/toggle`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
       })

@@ -28,6 +28,7 @@ import {
   Phone,
 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { API_BASE } from "@/lib/api-client"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -70,7 +71,7 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
             setIsSuperAdmin(roleData.isSuperAdmin === true)
           } else {
             // Fallback: fetch from API if not stored
-            const roleRes = await fetch("http://localhost:8080/api/admin/me/role", {
+            const roleRes = await fetch(`${API_BASE}/admin/me/role`, {
               headers: { Authorization: `Bearer ${token}` },
             })
             if (roleRes.ok) {
@@ -87,7 +88,7 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
 
         // Get store name from profile
         try {
-          const res = await fetch("http://localhost:8080/api/profile/me", {
+          const res = await fetch(`${API_BASE}/profile/me`, {
             headers: { Authorization: `Bearer ${token}` },
           })
           if (res.ok) {

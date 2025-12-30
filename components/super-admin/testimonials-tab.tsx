@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { Star, Check, X } from "lucide-react"
+import { API_BASE } from "@/lib/api-client"
 
 export default function TestimonialsTab() {
   const [testimonials, setTestimonials] = useState([])
@@ -26,7 +27,7 @@ export default function TestimonialsTab() {
     try {
       setIsLoading(true)
       const token = localStorage.getItem("token")
-      const url = new URL("http://localhost:8080/api/super-admin/testimonials")
+      const url = new URL(`${API_BASE}/super-admin/testimonials`)
       if (statusFilter && statusFilter !== "all") url.searchParams.append("status", statusFilter)
 
       const response = await fetch(url.toString(), {
@@ -51,7 +52,7 @@ export default function TestimonialsTab() {
     try {
       const token = localStorage.getItem("token")
       const response = await fetch(
-        `http://localhost:8080/api/super-admin/testimonials/${testimonialId}/status`,
+        `${API_BASE}/super-admin/testimonials/${testimonialId}/status`,
         {
           method: "PUT",
           headers: {

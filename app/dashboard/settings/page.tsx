@@ -10,6 +10,7 @@ import { dataStore } from "@/lib/store"
 import type { Store, Category } from "@/lib/types"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
+import { API_BASE } from "@/lib/api-client"
 
 type ProfileResponse = {
   username: string
@@ -41,7 +42,7 @@ export default function SettingsPage() {
       const token = localStorage.getItem("token")
       if (token) {
         try {
-          const res = await fetch("http://localhost:8080/api/profile/me", {
+          const res = await fetch(`${API_BASE}/profile/me`, {
             headers: { Authorization: `Bearer ${token}` },
           })
           if (res.ok) {
@@ -82,7 +83,7 @@ export default function SettingsPage() {
       
       // Load categories from backend
       try {
-        const catRes = await fetch("http://localhost:8080/api/categories", {
+        const catRes = await fetch(`${API_BASE}/categories`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (catRes.ok) {
@@ -128,7 +129,7 @@ export default function SettingsPage() {
       businessType: (data as any).businessType || "",
     }
     try {
-      const res = await fetch("http://localhost:8080/api/profile", {
+        const res = await fetch(`${API_BASE}/profile`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload),
@@ -148,7 +149,7 @@ export default function SettingsPage() {
       
       // Reload profile to get updated storeId and role (in case user was promoted to STORE_OWNER)
       try {
-        const profileRes = await fetch("http://localhost:8080/api/profile/me", {
+        const profileRes = await fetch(`${API_BASE}/profile/me`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (profileRes.ok) {
@@ -209,7 +210,7 @@ export default function SettingsPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:8080/api/categories", {
+      const res = await fetch(`${API_BASE}/categories`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -257,7 +258,7 @@ export default function SettingsPage() {
     }
 
     try {
-      const res = await fetch(`http://localhost:8080/api/categories/${id}`, {
+      const res = await fetch(`${API_BASE}/categories/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

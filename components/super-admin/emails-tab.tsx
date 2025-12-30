@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { Mail, Eye } from "lucide-react"
+import { API_BASE } from "@/lib/api-client"
 
 export default function EmailsTab() {
   const [emails, setEmails] = useState([])
@@ -28,7 +29,7 @@ export default function EmailsTab() {
     try {
       setIsLoading(true)
       const token = localStorage.getItem("token")
-      const url = new URL("http://localhost:8080/api/super-admin/emails")
+      const url = new URL(`${API_BASE}/super-admin/emails`)
       if (typeFilter && typeFilter !== "all") url.searchParams.append("type", typeFilter)
       if (statusFilter && statusFilter !== "all") url.searchParams.append("status", statusFilter)
 
@@ -54,7 +55,7 @@ export default function EmailsTab() {
     try {
       const token = localStorage.getItem("token")
       const response = await fetch(
-        `http://localhost:8080/api/super-admin/emails/${emailId}/status`,
+        `${API_BASE}/super-admin/emails/${emailId}/status`,
         {
           method: "PUT",
           headers: {

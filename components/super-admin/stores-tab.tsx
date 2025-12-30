@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
 import { Plus, Edit2, Trash2 } from "lucide-react"
+import { API_BASE } from "@/lib/api-client"
 
 export default function StoresTab() {
   const [stores, setStores] = useState([])
@@ -34,7 +35,7 @@ export default function StoresTab() {
     try {
       setIsLoading(true)
       const token = localStorage.getItem("token")
-      const response = await fetch("http://localhost:8080/api/super-admin/stores", {
+      const response = await fetch(`${API_BASE}/super-admin/stores`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (response.ok) {
@@ -66,9 +67,9 @@ export default function StoresTab() {
 
     try {
       const token = localStorage.getItem("token")
-      const url = editingId 
-        ? `http://localhost:8080/api/super-admin/stores/${editingId}`
-        : "http://localhost:8080/api/super-admin/stores"
+          const url = editingId
+            ? `${API_BASE}/super-admin/stores/${editingId}`
+            : `${API_BASE}/super-admin/stores`
       
       const method = editingId ? "PUT" : "POST"
       
@@ -105,7 +106,7 @@ export default function StoresTab() {
 
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:8080/api/super-admin/stores/${id}`, {
+          const response = await fetch(`${API_BASE}/super-admin/stores/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       })

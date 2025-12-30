@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import { Trash2, X } from "lucide-react"
+import { API_BASE } from "@/lib/api-client"
 
 interface ConfirmDialog {
   isOpen: boolean
@@ -71,7 +72,7 @@ export default function UsersTab() {
     try {
       setIsLoading(true)
       const token = localStorage.getItem("token")
-      const response = await fetch("http://localhost:8080/api/super-admin/users", {
+      const response = await fetch(`${API_BASE}/super-admin/users`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (response.ok) {
@@ -92,7 +93,7 @@ export default function UsersTab() {
   const handleUpdateRole = async (userId: number, newRole: string) => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:8080/api/super-admin/users/${userId}/role`, {
+      const response = await fetch(`${API_BASE}/super-admin/users/${userId}/role`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -117,7 +118,7 @@ export default function UsersTab() {
   const handleDelete = async (userId: number) => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:8080/api/super-admin/users/${userId}`, {
+      const response = await fetch(`${API_BASE}/super-admin/users/${userId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -145,7 +146,7 @@ export default function UsersTab() {
   const handleStatusChange = async (userId: number, newStatus: boolean) => {
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`http://localhost:8080/api/super-admin/users/${userId}/toggle`, {
+      const response = await fetch(`${API_BASE}/super-admin/users/${userId}/toggle`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
       })

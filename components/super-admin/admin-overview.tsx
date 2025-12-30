@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, Building2, UserCog, CreditCard, TrendingUp, Activity } from "lucide-react"
 import { formatCurrency } from "@/lib/utils"
+import { API_BASE } from "@/lib/api-client"
 
 interface AdminStats {
   totalUsers: number
@@ -34,16 +35,16 @@ export default function AdminOverview() {
 
       // Fetch all admin stats
       const [usersRes, storesRes, adminsRes, paymentsRes] = await Promise.all([
-        fetch("http://localhost:8080/api/admin/users", {
+        fetch(`${API_BASE}/admin/users`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch("http://localhost:8080/api/admin/stores", {
+        fetch(`${API_BASE}/admin/stores`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch("http://localhost:8080/api/admin/admins", {
+        fetch(`${API_BASE}/admin/admins`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch("http://localhost:8080/api/admin/payments", {
+        fetch(`${API_BASE}/admin/payments`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ])

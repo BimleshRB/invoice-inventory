@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { Building2, MapPin, Phone, FileText, Globe, Loader2, Package } from "lucide-react"
 import Link from "next/link"
+import { API_BASE } from "@/lib/api-client"
 
 const currencies = [
   { code: "USD", name: "US Dollar", symbol: "$" },
@@ -121,7 +122,7 @@ export default function SignupDetailsPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:8080/api/profile", {
+      const res = await fetch(`${API_BASE}/profile`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload),

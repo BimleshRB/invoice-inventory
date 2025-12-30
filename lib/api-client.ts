@@ -3,9 +3,7 @@
  * Handles authentication, error handling, and request/response formatting
  * Industry-grade with proper error handling and retry logic
  */
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
-
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
 type RequestInit = {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
   headers?: Record<string, string>
@@ -29,23 +27,23 @@ interface PaginatedResponse<T> {
 
 /**
  * Make an authenticated API request
- */
+*/
 export async function apiRequest<T = any>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
   const url = `${API_BASE}${endpoint}`
   const token = options.token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null)
-
+  
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...options.headers,
   }
-
+  
   if (token) {
     headers['Authorization'] = `Bearer ${token}`
   }
-
+  
   // Debug logging
   console.log(`[API] ${options.method || 'GET'} ${endpoint}`, {
     hasToken: !!token,

@@ -25,6 +25,7 @@ import { useToast } from "@/hooks/use-toast"
 import { adminApi } from "@/lib/api"
 import type { User, UserRole, CurrentUserInfo } from "@/lib/types"
 import { Shield, Trash2, Edit2, Plus } from "lucide-react"
+import { API_BASE } from "@/lib/api-client"
 
 interface StoreAdminsProps {
   storeId: string
@@ -134,7 +135,7 @@ export function StoreAdmins({ storeId }: StoreAdminsProps) {
 
     try {
       const token = localStorage.getItem("token")
-      const res = await fetch("http://localhost:8080/api/store/admins", {
+      const res = await fetch(`${API_BASE}/store/admins`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

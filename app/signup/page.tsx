@@ -13,6 +13,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
+import { API_BASE } from "@/lib/api-client"
 
 const STORAGE_KEY = "signup_form"
 
@@ -67,7 +68,7 @@ export default function SignupPage() {
     e.preventDefault()
     setIsLoading(true)
     try {
-      const res = await fetch("http://localhost:8080/api/auth/signup", {
+      const res = await fetch(`${API_BASE}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: formData.name, email: formData.email, password: formData.password, storeName: formData.storeName }),
@@ -99,7 +100,7 @@ export default function SignupPage() {
       // check profile status and redirect accordingly
       try {
         const token = data.token
-        const profileRes = await fetch("http://localhost:8080/api/profile/me", {
+        const profileRes = await fetch(`${API_BASE}/profile/me`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (profileRes.ok) {

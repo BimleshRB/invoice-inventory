@@ -12,6 +12,7 @@ import { Package, Eye, EyeOff, Loader2, ArrowLeft, Shield, Zap, BarChart3, X } f
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
+import { API_BASE } from "@/lib/api-client"
 
 const STORAGE_KEY = "login_form"
 
@@ -64,7 +65,7 @@ export default function LoginPage() {
     e.preventDefault()
     setIsLoading(true)
     try {
-      const res = await fetch("http://localhost:8080/api/auth/login", {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: formData.email, password: formData.password }),
@@ -72,7 +73,8 @@ export default function LoginPage() {
       })
       const data = await res.json()
       if (!res.ok) {
-        const message = data?.error || (res.status === 401 ? "Invalid credentials" : res.status === 404 ? "User not found" : "Login failed")
+        const message =
+          data?.error || (res.status === 401 ? "Invalid credentials" : res.status === 404 ? "User not found" : "Login failed")
         toast({
           title: "Sign-in error",
           description: message,
@@ -100,7 +102,7 @@ export default function LoginPage() {
         // check profile status for non-admin users
         try {
           const token = data.token
-          const profileRes = await fetch("http://localhost:8080/api/profile/me", {
+          const profileRes = await fetch(`${API_BASE}/profile/me`, {
             headers: { Authorization: `Bearer ${token}` },
           })
           if (profileRes.ok) {
