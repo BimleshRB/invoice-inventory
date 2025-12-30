@@ -107,10 +107,10 @@ export default function TestimonialsTab() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-6">
+    <div className="rounded-lg border bg-card text-foreground shadow-sm p-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Testimonials</h2>
-        <p className="text-gray-600 mt-1">Review and manage customer testimonials</p>
+        <h2 className="text-2xl font-bold text-foreground">Testimonials</h2>
+        <p className="text-muted-foreground mt-1">Review and manage customer testimonials</p>
       </div>
 
       <div className="mb-6 flex gap-4">
@@ -129,20 +129,20 @@ export default function TestimonialsTab() {
 
       {isLoading ? (
         <div className="text-center py-8">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       ) : testimonials.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-muted-foreground">
           <p>No testimonials found</p>
         </div>
       ) : (
         <div className="space-y-4">
           {testimonials.map((testimonial) => (
-            <div key={testimonial.id} className="border rounded-lg p-4 hover:shadow-md transition">
+            <div key={testimonial.id} className="border rounded-lg p-4 hover:bg-muted/40 transition">
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <h3 className="font-semibold text-gray-900">{testimonial.customerName}</h3>
-                  <p className="text-sm text-gray-600">{testimonial.customerEmail}</p>
+                  <h3 className="font-semibold text-foreground">{testimonial.customerName}</h3>
+                  <p className="text-sm text-muted-foreground">{testimonial.customerEmail}</p>
                 </div>
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeColor(
@@ -155,15 +155,15 @@ export default function TestimonialsTab() {
 
               <div className="mb-3 flex items-center gap-2">
                 {renderStars(testimonial.rating)}
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-muted-foreground">
                   {testimonial.rating === 5 ? "Excellent" : testimonial.rating >= 4 ? "Great" : testimonial.rating >= 3 ? "Good" : "Fair"}
                 </span>
               </div>
 
-              <p className="text-gray-700 mb-4 text-sm">{testimonial.message}</p>
+              <p className="text-foreground/80 mb-4 text-sm">{testimonial.message}</p>
 
               <div className="flex justify-between items-center">
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-muted-foreground">
                   Submitted: {formatDate(testimonial.createdAt)}
                   {testimonial.approvedAt && (
                     <> • Approved: {formatDate(testimonial.approvedAt)}</>

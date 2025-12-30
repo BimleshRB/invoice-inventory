@@ -77,10 +77,10 @@ export default function AdminOverview() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-foreground">
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="bg-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -91,7 +91,7 @@ export default function AdminOverview() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Stores</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
@@ -102,7 +102,7 @@ export default function AdminOverview() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Admins</CardTitle>
             <UserCog className="h-4 w-4 text-muted-foreground" />
@@ -113,7 +113,7 @@ export default function AdminOverview() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Payments</CardTitle>
             <CreditCard className="h-4 w-4 text-muted-foreground" />
@@ -126,7 +126,7 @@ export default function AdminOverview() {
       </div>
 
       {/* Recent Payments */}
-      <Card>
+      <Card className="bg-card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5" />
@@ -141,7 +141,7 @@ export default function AdminOverview() {
               {stats.recentPayments.map((payment: any, index: number) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex-1">
                     <p className="font-medium text-sm">
@@ -168,7 +168,7 @@ export default function AdminOverview() {
 
       {/* Quick Actions */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="hover:shadow-md transition-shadow cursor-pointer">
+        <Card className="hover:shadow-md transition-shadow cursor-pointer bg-card">
           <CardHeader>
             <CardTitle className="text-base">System Activity</CardTitle>
           </CardHeader>
@@ -179,7 +179,7 @@ export default function AdminOverview() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow cursor-pointer">
+        <Card className="hover:shadow-md transition-shadow cursor-pointer bg-card">
           <CardHeader>
             <CardTitle className="text-base">Revenue Analytics</CardTitle>
           </CardHeader>
@@ -190,7 +190,7 @@ export default function AdminOverview() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow cursor-pointer">
+        <Card className="hover:shadow-md transition-shadow cursor-pointer bg-card">
           <CardHeader>
             <CardTitle className="text-base">User Engagement</CardTitle>
           </CardHeader>

@@ -112,7 +112,7 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
 
   return (
     <>
-      <Link href="/" className="flex h-16 items-center gap-3 border-b border-border px-6 hover:bg-accent/50 transition-colors">
+      <Link href="/" className="flex h-16 items-center gap-3 border-b border-border px-6 hover:bg-muted/70 dark:hover:bg-muted/60 transition-colors bg-card/80 backdrop-blur">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
           <Store className="h-5 w-5 text-primary-foreground" />
         </div>
@@ -135,8 +135,8 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                  ? "bg-primary/90 text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-muted/70",
               )}
             >
               <item.icon className="h-4 w-4" />
@@ -149,7 +149,7 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         {isSuperAdmin && (
           <>
             {adminNavigation.map((item) => {
-              const isActive = item.href === "/dashboard/admin" 
+              const isActive = item.href === "/dashboard/admin"
                 ? pathname === "/dashboard/admin" && !window.location.hash
                 : pathname === "/dashboard/admin" && window.location.hash === item.href.split('#')[1] ? `#${item.href.split('#')[1]}` : false
               return (
@@ -160,8 +160,8 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                     isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                      ? "bg-primary/90 text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-muted/70",
                   )}
                 >
                   <item.icon className="h-4 w-4" />
@@ -172,7 +172,7 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
           </>
         )}
       </nav>
-      <div className="border-t border-border p-4 space-y-3">
+      <div className="border-t border-border p-4 space-y-3 bg-card/80 backdrop-blur">
         <Button
           variant="outline"
           className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:border-destructive"
@@ -206,7 +206,7 @@ export function Sidebar() {
               </span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-64 p-0">
+          <SheetContent side="left" className="w-64 p-0 bg-background">
             <div className="flex h-full flex-col">
               <SidebarContent onLinkClick={() => setOpen(false)} />
             </div>

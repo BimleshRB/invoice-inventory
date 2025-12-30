@@ -136,11 +136,11 @@ export default function StoresTab() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-6">
+    <div className="rounded-lg border bg-card text-foreground shadow-sm p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Stores</h2>
-          <p className="text-gray-600 mt-1">Manage all business stores in the system</p>
+          <h2 className="text-2xl font-bold text-foreground">Stores</h2>
+          <p className="text-muted-foreground mt-1">Manage all business stores in the system</p>
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
@@ -186,48 +186,48 @@ export default function StoresTab() {
 
       {isLoading ? (
         <div className="text-center py-8">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       ) : stores.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-muted-foreground">
           <p>No stores yet. Create one to get started.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="border-b bg-gray-50">
+              <thead className="border-b bg-muted/60">
                 <tr>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Store Name</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Owner</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Owner Email</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Currency</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Phone</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Created</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Actions</th>
+                  <th className="text-left py-3 px-4 font-semibold text-foreground">Store Name</th>
+                  <th className="text-left py-3 px-4 font-semibold text-foreground">Owner</th>
+                  <th className="text-left py-3 px-4 font-semibold text-foreground">Owner Email</th>
+                  <th className="text-left py-3 px-4 font-semibold text-foreground">Currency</th>
+                  <th className="text-left py-3 px-4 font-semibold text-foreground">Phone</th>
+                  <th className="text-left py-3 px-4 font-semibold text-foreground">Created</th>
+                  <th className="text-left py-3 px-4 font-semibold text-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {stores.map((store) => (
-                  <tr key={store.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4 text-gray-900 font-medium">{store.name}</td>
-                    <td className="py-3 px-4 text-gray-900">
+                  <tr key={store.id} className="border-b hover:bg-muted/50">
+                    <td className="py-3 px-4 text-foreground font-medium">{store.name}</td>
+                    <td className="py-3 px-4 text-foreground">
                       {store.ownerName ? (
                         <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                           {store.ownerName}
                         </span>
                       ) : (
-                        <span className="text-gray-500">N/A</span>
+                        <span className="text-muted-foreground">N/A</span>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-gray-900 text-sm">{store.ownerEmail || "N/A"}</td>
-                    <td className="py-3 px-4 text-gray-900">
+                    <td className="py-3 px-4 text-foreground text-sm">{store.ownerEmail || "N/A"}</td>
+                    <td className="py-3 px-4 text-foreground">
                       <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
                         {store.currency}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-gray-900">{store.phone || "N/A"}</td>
-                    <td className="py-3 px-4 text-gray-600 text-sm">
+                    <td className="py-3 px-4 text-foreground">{store.phone || "N/A"}</td>
+                    <td className="py-3 px-4 text-muted-foreground text-sm">
                       {store.createdAt ? new Date(store.createdAt).toLocaleDateString() : "N/A"}
                     </td>
                     <td className="py-3 px-4 flex gap-2">
@@ -235,7 +235,7 @@ export default function StoresTab() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleEdit(store)}
-                        className="text-blue-600 hover:text-blue-700"
+                        className="text-primary hover:text-primary/80"
                         title="Edit store"
                       >
                         <Edit2 className="w-4 h-4" />
@@ -244,7 +244,7 @@ export default function StoresTab() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(store.id)}
-                        className="text-red-600 hover:text-red-700"
+                        className="text-destructive hover:text-destructive/80"
                         title="Delete store"
                       >
                         <Trash2 className="w-4 h-4" />

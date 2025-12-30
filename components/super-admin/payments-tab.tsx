@@ -102,10 +102,10 @@ export default function PaymentsTab() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-6">
+    <div className="rounded-lg border bg-card text-foreground shadow-sm p-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Payments</h2>
-        <p className="text-gray-600 mt-1">Monitor and manage all payment transactions</p>
+        <h2 className="text-2xl font-bold text-foreground">Payments</h2>
+        <p className="text-muted-foreground mt-1">Monitor and manage all payment transactions</p>
       </div>
 
       <div className="mb-6 flex gap-4">
@@ -125,39 +125,39 @@ export default function PaymentsTab() {
 
       {isLoading ? (
         <div className="text-center py-8">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       ) : payments.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-muted-foreground">
           <p>No payments found</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="border-b bg-gray-50">
+            <thead className="border-b bg-muted/60">
               <tr>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">
+                <th className="text-left py-3 px-4 font-semibold text-foreground">
                   Transaction ID
                 </th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Amount</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Method</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Status</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Date</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Update Status</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Amount</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Method</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Status</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Date</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Update Status</th>
               </tr>
             </thead>
             <tbody>
               {payments.map((payment) => (
-                <tr key={payment.id} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4 text-sm text-gray-900 font-mono">
+                <tr key={payment.id} className="border-b hover:bg-muted/50">
+                  <td className="py-3 px-4 text-sm text-foreground font-mono">
                     {payment.transactionId?.substring(0, 12)}...
                   </td>
-                  <td className="py-3 px-4 text-gray-900">
+                  <td className="py-3 px-4 text-foreground">
                     <span className="font-semibold">
                       {formatAmount(payment.amount, payment.storeCurrency || "USD")}
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-gray-600 text-sm">{payment.paymentMethod}</td>
+                  <td className="py-3 px-4 text-muted-foreground text-sm">{payment.paymentMethod}</td>
                   <td className="py-3 px-4">
                     <span
                       className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeColor(
@@ -167,14 +167,14 @@ export default function PaymentsTab() {
                       {payment.status}
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-600">
+                  <td className="py-3 px-4 text-sm text-muted-foreground">
                     {formatDate(payment.paymentDate)}
                   </td>
                   <td className="py-3 px-4">
                     <select
                       onChange={(e) => handleStatusUpdate(payment.id, e.target.value)}
                       defaultValue={payment.status}
-                      className="px-2 py-1 border border-gray-300 rounded text-sm"
+                      className="px-2 py-1 border border-border rounded text-sm bg-background"
                     >
                       <option value="">Change status</option>
                       <option value="PENDING">Pending</option>

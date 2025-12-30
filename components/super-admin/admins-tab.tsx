@@ -225,11 +225,11 @@ export default function AdminsTab() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-6">
+    <div className="rounded-lg border bg-card text-foreground shadow-sm p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">System Admins</h2>
-          <p className="text-gray-600 mt-1">Manage store administrators and system admins</p>
+          <h2 className="text-2xl font-bold text-foreground">System Admins</h2>
+          <p className="text-muted-foreground mt-1">Manage store administrators and system admins</p>
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
@@ -309,29 +309,29 @@ export default function AdminsTab() {
 
       {isLoading ? (
         <div className="text-center py-8">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       ) : admins.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-muted-foreground">
           <p>No admins found. Create one to get started.</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="border-b bg-gray-50">
+            <thead className="border-b bg-muted/60">
               <tr>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Email</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Full Name</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Store</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Status</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Actions</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Email</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Full Name</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Store</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Status</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
               {admins.map((admin) => (
-                <tr key={admin.id} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4 text-gray-900 font-medium">{admin.username}</td>
-                  <td className="py-3 px-4 text-gray-900">{admin.fullName}</td>
+                <tr key={admin.id} className="border-b hover:bg-muted/50">
+                  <td className="py-3 px-4 text-foreground font-medium">{admin.username}</td>
+                  <td className="py-3 px-4 text-foreground">{admin.fullName}</td>
                   <td className="py-3 px-4">
                     <span className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium">
                       {getStoreInfo(admin.storeId)}
@@ -353,7 +353,7 @@ export default function AdminsTab() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleEdit(admin)}
-                      className="text-blue-600 hover:text-blue-700"
+                      className="text-primary hover:text-primary/80"
                     >
                       <Edit2 className="w-4 h-4" />
                     </Button>
@@ -367,7 +367,7 @@ export default function AdminsTab() {
                           email: admin.username,
                         })
                       }
-                      className="text-red-600 hover:text-red-700"
+                      className="text-destructive hover:text-destructive/80"
                       title="Disable admin"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -376,7 +376,7 @@ export default function AdminsTab() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleToggleStatus(admin.id)}
-                      className={admin.enabled ? "text-orange-600 hover:text-orange-700" : "text-green-600 hover:text-green-700"}
+                      className={admin.enabled ? "text-amber-600 hover:text-amber-500" : "text-green-600 hover:text-green-500"}
                       title={admin.enabled ? "Disable admin" : "Enable admin"}
                     >
                       {admin.enabled ? <X className="w-4 h-4" /> : <Check className="w-4 h-4" />}

@@ -84,10 +84,10 @@ function AdminSidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
 
   return (
     <>
-      <Link 
-        href="/dashboard/admin" 
+      <Link
+        href="/dashboard/admin"
         onClick={(e) => handleNavClick(e, "/dashboard/admin")}
-        className="flex h-16 items-center gap-3 border-b border-border px-6 hover:bg-accent/50 transition-colors"
+        className="flex h-16 items-center gap-3 border-b border-border px-6 hover:bg-muted/70 dark:hover:bg-muted/60 transition-colors bg-card/80 backdrop-blur"
       >
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
           <Shield className="h-5 w-5 text-primary-foreground" />
@@ -109,8 +109,8 @@ function AdminSidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                  ? "bg-primary/90 text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-muted/70",
               )}
             >
               <item.icon className="h-4 w-4" />
@@ -120,7 +120,7 @@ function AdminSidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         })}
       </nav>
       
-      <div className="border-t border-border p-4 space-y-3">
+      <div className="border-t border-border p-4 space-y-3 bg-card/80 backdrop-blur">
         <Button
           variant="outline"
           className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:border-destructive"
@@ -154,7 +154,7 @@ export function AdminSidebar() {
               </span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-64 p-0">
+          <SheetContent side="left" className="w-64 p-0 bg-background">
             <div className="flex h-full flex-col">
               <AdminSidebarContent onLinkClick={() => setOpen(false)} />
             </div>

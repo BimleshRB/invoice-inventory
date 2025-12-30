@@ -214,11 +214,11 @@ export default function ContactsTab() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-6">
+    <div className="rounded-lg border bg-card text-foreground shadow-sm p-6">
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Contacts</h2>
-          <p className="text-gray-600 mt-1">Manage customer inquiries and support tickets</p>
+          <h2 className="text-2xl font-bold text-foreground">Contacts</h2>
+          <p className="text-muted-foreground mt-1">Manage customer inquiries and support tickets</p>
         </div>
       </div>
 
@@ -254,32 +254,32 @@ export default function ContactsTab() {
 
       {isLoading ? (
         <div className="text-center py-8">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       ) : contacts.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-muted-foreground">
           <p>No contacts found</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="border-b bg-gray-50">
+            <thead className="border-b bg-muted/60">
               <tr>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Name</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Email</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Category</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Status</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Priority</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Assigned To</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Actions</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Name</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Email</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Category</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Status</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Priority</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Assigned To</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
               {contacts.map((contact) => (
-                <tr key={contact.id} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4 text-gray-900 font-medium">{contact.name}</td>
-                  <td className="py-3 px-4 text-gray-600 text-sm">{contact.email}</td>
-                  <td className="py-3 px-4 text-sm text-gray-600">{contact.category}</td>
+                <tr key={contact.id} className="border-b hover:bg-muted/50">
+                  <td className="py-3 px-4 text-foreground font-medium">{contact.name}</td>
+                  <td className="py-3 px-4 text-muted-foreground text-sm">{contact.email}</td>
+                  <td className="py-3 px-4 text-sm text-muted-foreground">{contact.category}</td>
                   <td className="py-3 px-4">
                     <span
                       className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeColor(
@@ -298,7 +298,7 @@ export default function ContactsTab() {
                       P{contact.priority}
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-600">
+                  <td className="py-3 px-4 text-sm text-muted-foreground">
                     {contact.assignedToName || "Unassigned"}
                   </td>
                   <td className="py-3 px-4 flex gap-2">
@@ -388,7 +388,7 @@ export default function ContactsTab() {
                             <textarea
                               id="notes"
                               placeholder="Add notes about this contact"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                               rows={4}
                               value={formData.notes}
                               onChange={(e) =>

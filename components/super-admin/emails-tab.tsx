@@ -109,10 +109,10 @@ export default function EmailsTab() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-6">
+    <div className="rounded-lg border bg-card text-foreground shadow-sm p-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Emails</h2>
-        <p className="text-gray-600 mt-1">Track all automated emails and their delivery status</p>
+        <h2 className="text-2xl font-bold text-foreground">Emails</h2>
+        <p className="text-muted-foreground mt-1">Track all automated emails and their delivery status</p>
       </div>
 
       <div className="mb-6 flex gap-4">
@@ -144,32 +144,32 @@ export default function EmailsTab() {
 
       {isLoading ? (
         <div className="text-center py-8">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       ) : emails.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-muted-foreground">
           <p>No emails found</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="border-b bg-gray-50">
+            <thead className="border-b bg-muted/60">
               <tr>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">
+                <th className="text-left py-3 px-4 font-semibold text-foreground">
                   Recipient Email
                 </th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Subject</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Type</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Status</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Sent Date</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Update Status</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Subject</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Type</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Status</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Sent Date</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Update Status</th>
               </tr>
             </thead>
             <tbody>
               {emails.map((email) => (
-                <tr key={email.id} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4 text-gray-900 text-sm">{email.recipientEmail}</td>
-                  <td className="py-3 px-4 text-gray-900 text-sm truncate max-w-xs">
+                <tr key={email.id} className="border-b hover:bg-muted/50">
+                  <td className="py-3 px-4 text-foreground text-sm">{email.recipientEmail}</td>
+                  <td className="py-3 px-4 text-foreground text-sm truncate max-w-xs">
                     {email.subject}
                   </td>
                   <td className="py-3 px-4">
@@ -190,14 +190,14 @@ export default function EmailsTab() {
                       {email.status}
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-600">
+                  <td className="py-3 px-4 text-sm text-muted-foreground">
                     {email.sentAt ? formatDate(email.sentAt) : "Not sent"}
                   </td>
                   <td className="py-3 px-4">
                     <select
                       onChange={(e) => handleStatusUpdate(email.id, e.target.value)}
                       defaultValue={email.status}
-                      className="px-2 py-1 border border-gray-300 rounded text-sm"
+                      className="px-2 py-1 border border-border rounded text-sm bg-background"
                     >
                       <option value="">Change status</option>
                       <option value="PENDING">Pending</option>
