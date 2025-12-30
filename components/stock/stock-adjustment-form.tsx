@@ -32,14 +32,15 @@ export function StockAdjustmentForm({ open, onOpenChange, products, onSubmit }: 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    // Map frontend type values to backend type values
+    const backendType = type === "adjustment" ? "adjust" : type
     onSubmit({
-      productId,
-      type,
+      productId: Number(productId),
+      type: backendType,
       quantity,
       reason,
       referenceId: null,
       referenceType: "manual",
-      storeId: "store-1",
     })
     onOpenChange(false)
     resetForm()
@@ -52,7 +53,7 @@ export function StockAdjustmentForm({ open, onOpenChange, products, onSubmit }: 
     setReason("")
   }
 
-  const selectedProduct = products.find((p) => p.id === productId)
+  const selectedProduct = products.find((p) => p.id.toString() === productId)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

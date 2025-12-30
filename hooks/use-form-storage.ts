@@ -16,7 +16,7 @@ export function useFormStorage<T extends Record<string, unknown>>(
   const [formData, setFormData] = useState<T>(initialData)
   const [isLoaded, setIsLoaded] = useState(false)
 
-  // Load from localStorage on mount
+  // Load from localStorage on moun
   useEffect(() => {
     const stored = localStorage.getItem(`form_${key}`)
     if (stored) {

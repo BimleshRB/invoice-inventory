@@ -27,7 +27,9 @@ export function StockTable({ movements }: StockTableProps) {
     const matchesSearch =
       movement.product?.name.toLowerCase().includes(search.toLowerCase()) ||
       movement.reason.toLowerCase().includes(search.toLowerCase())
-    const matchesType = typeFilter === "all" || movement.type === typeFilter
+    // Handle both 'type' (normalized) and 'movementType' (from backend) fields
+    const movementType = movement.type || movement.movementType
+    const matchesType = typeFilter === "all" || movementType === typeFilter
     return matchesSearch && matchesType
   })
 
@@ -79,7 +81,8 @@ export function StockTable({ movements }: StockTableProps) {
               </TableRow>
             ) : (
               filteredMovements.map((movement) => {
-                const type = typeConfig[movement.type]
+                const movementType = movement.type || movement.movementType
+                const type = typeConfig[movementType as keyof typeof typeConfig] || typeConfig.in
                 const TypeIcon = type.icon
                 return (
                   <TableRow key={movement.id}>
@@ -96,14 +99,14 @@ export function StockTable({ movements }: StockTableProps) {
                     <TableCell className="text-right">
                       <span
                         className={
-                          movement.type === "in"
+                          movementType === "in"
                             ? "text-success font-medium"
-                            : movement.type === "out"
+                            : movementType === "out"
                               ? "text-destructive font-medium"
                               : "text-foreground font-medium"
                         }
                       >
-                        {movement.type === "in" ? "+" : movement.type === "out" ? "-" : ""}
+                        {movementType === "in" ? "+" : movementType === "out" ? "-" : ""}
                         {movement.quantity}
                       </span>
                     </TableCell>

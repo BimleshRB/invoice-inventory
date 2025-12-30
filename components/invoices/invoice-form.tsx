@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -45,6 +45,15 @@ export function InvoiceForm({
   const [notes, setNotes] = useState("")
   const [dueDate, setDueDate] = useState(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0])
 
+  // Safely parse numbers from inputs, falling back to a default when blank/invalid
+  const toNumber = (value: string | number | undefined, fallback = 0) => {
+    if (typeof value === "number") return Number.isFinite(value) ? value : fallback
+    const str = (value ?? "").toString().trim()
+    if (str === "") return fallback
+    const n = Number.parseFloat(str)
+    return Number.isFinite(n) ? n : fallback
+  }
+
   const addItem = () => {
     setItems([...items, { productId: "", quantity: 1, unitPrice: 0, discount: 0, total: 0 }])
   }
@@ -58,27 +67,36 @@ export function InvoiceForm({
     const item = { ...newItems[index], [field]: value }
 
     if (field === "productId") {
-      const product = products.find((p) => p.id === value)
+      const product = products.find((p) => String(p.id) === String(value))
       if (product) {
-        item.unitPrice = product.sellingPrice
+        item.productId = String(product.id)
+        item.unitPrice = Number(product.sellingPrice) || 0
       }
     }
 
-    item.total = (item.quantity || 0) * (item.unitPrice || 0) - (item.discount || 0)
+    const qty = Number(item.quantity || 0)
+    const price = Number(item.unitPrice || 0)
+    const disc = Number(item.discount || 0)
+    item.total = qty * price - disc
     newItems[index] = item
     setItems(newItems)
   }
 
   const subtotal = items.reduce((sum, item) => sum + (item.total || 0), 0)
-  const taxAmount = (subtotal * taxRate) / 100
-  const total = subtotal + taxAmount - discount
+  const safeTaxRate = Number.isFinite(taxRate) ? taxRate : 0
+  const safeDiscount = Number.isFinite(discount) ? discount : 0
+  const taxAmount = (subtotal * safeTaxRate) / 100
+  const total = subtotal + taxAmount - safeDiscount
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    const validItems = (items || []).filter(i => i.productId).map(i => ({
+      ...i,
+      productId: Number(i.productId),
+    }))
     onSubmit({
-      customerId,
-      storeId: "store-1",
-      items: items as InvoiceItem[],
+      customerId: Number(customerId) || (customerId as any),
+      items: validItems as InvoiceItem[],
       subtotal,
       taxRate,
       taxAmount,
@@ -107,16 +125,34 @@ export function InvoiceForm({
     }
   }, [open])
 
+  // De-duplicate products by id to avoid repeated entries
+  const uniqueProducts = useMemo(() => {
+    const seen = new Set<string>()
+    return (products || []).filter(p => {
+      const key = String(p.id)
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+  }, [products])
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[800px]">
-        <DialogHeader>
-          <DialogTitle>Create New Invoice</DialogTitle>
-          <DialogDescription>
-            Invoice Number: <span className="font-mono font-semibold">{nextInvoiceNumber}</span>
-          </DialogDescription>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[880px]">
+        <DialogHeader className="gap-3 pb-2">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1">
+              <DialogTitle className="text-2xl">Create New Invoice</DialogTitle>
+              <p className="text-sm text-muted-foreground">
+                Capture the basics, add items, and we will calculate totals for you.
+              </p>
+            </div>
+            <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+              Invoice #{nextInvoiceNumber}
+            </span>
+          </div>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-7">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="customer">Customer</Label>
@@ -126,27 +162,45 @@ export function InvoiceForm({
                 </SelectTrigger>
                 <SelectContent>
                   {customers.map((customer) => (
-                    <SelectItem key={customer.id} value={customer.id}>
+                    <SelectItem key={customer.id} value={String(customer.id)}>
                       {customer.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground">Choose who this invoice will be billed to.</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="dueDate">Due Date</Label>
               <Input id="dueDate" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
+              <p className="text-xs text-muted-foreground">Set a realistic payment timeline to avoid overdue dues.</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label>Items</Label>
+              <div className="space-y-1">
+                <Label>Items</Label>
+                <p className="text-xs text-muted-foreground">List products or services to build your invoice.</p>
+              </div>
               <Button type="button" variant="outline" size="sm" onClick={addItem}>
                 <Plus className="mr-2 h-4 w-4" />
                 Add Item
               </Button>
             </div>
+            {items.length === 0 && (
+              <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/70 bg-muted/30 px-6 py-8 text-center">
+                <div className="rounded-full bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
+                  No items added yet
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Add your first line item to calculate totals automatically.
+                </p>
+                <Button type="button" variant="default" size="sm" onClick={addItem}>
+                  <Plus className="mr-2 h-4 w-4" /> Add your first item
+                </Button>
+              </div>
+            )}
             {items.length > 0 && (
               <div className="rounded-lg border border-border overflow-x-auto">
                 <Table>
@@ -165,15 +219,15 @@ export function InvoiceForm({
                       <TableRow key={index}>
                         <TableCell>
                           <Select
-                            value={item.productId || ""}
+                            value={item.productId ? String(item.productId) : ""}
                             onValueChange={(value) => updateItem(index, "productId", value)}
                           >
                             <SelectTrigger>
                               <SelectValue placeholder="Select product" />
                             </SelectTrigger>
                             <SelectContent>
-                              {products.map((product) => (
-                                <SelectItem key={product.id} value={product.id}>
+                              {uniqueProducts.map((product) => (
+                                <SelectItem key={product.id} value={String(product.id)}>
                                   {product.name} ({formatCurrency(product.sellingPrice)})
                                 </SelectItem>
                               ))}
@@ -230,46 +284,46 @@ export function InvoiceForm({
                 id="notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Additional notes for the invoice..."
+                placeholder="Add payment terms, bank details, or delivery notes."
                 rows={3}
               />
             </div>
-            <div className="space-y-3 rounded-lg bg-muted p-4">
+            <div className="space-y-3 rounded-lg border border-border/70 bg-muted/40 p-4 shadow-sm">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Subtotal</span>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground">Subtotal</span>
                 <span className="font-medium">{formatCurrency(subtotal)}</span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-sm text-muted-foreground">GST Rate (%)</span>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground">GST Rate (%)</span>
                 <Input
                   type="number"
                   min="0"
                   max="100"
                   step="0.1"
-                  value={taxRate}
-                  onChange={(e) => setTaxRate(Number.parseFloat(e.target.value))}
+                  value={Number.isFinite(taxRate) ? taxRate : 0}
+                  onChange={(e) => setTaxRate(toNumber(e.target.value, 0))}
                   className="w-24"
                 />
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">GST Amount</span>
-                <span>{formatCurrency(taxAmount)}</span>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground">GST Amount</span>
+                <span className="font-semibold">{formatCurrency(taxAmount)}</span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-sm text-muted-foreground">Discount (₹)</span>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground">Discount (₹)</span>
                 <Input
                   type="number"
                   min="0"
                   step="0.01"
-                  value={discount}
-                  onChange={(e) => setDiscount(Number.parseFloat(e.target.value))}
+                  value={Number.isFinite(discount) ? discount : 0}
+                  onChange={(e) => setDiscount(toNumber(e.target.value, 0))}
                   className="w-24"
                 />
               </div>
               <div className="border-t border-border pt-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-base font-semibold">Total</span>
-                  <span className="text-lg font-bold text-primary">{formatCurrency(total)}</span>
+                  <span className="text-sm font-semibold">Total</span>
+                  <span className="text-xl font-bold text-primary">{formatCurrency(total)}</span>
                 </div>
               </div>
             </div>

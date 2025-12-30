@@ -98,7 +98,7 @@ export function CategorySettings({ categories, onAdd, onDelete }: CategorySettin
                       <TableCell className="font-medium text-foreground">{category.name}</TableCell>
                       <TableCell className="text-muted-foreground">{category.description}</TableCell>
                       <TableCell className="text-muted-foreground">
-                        {format(new Date(category.createdAt), "MMM dd, yyyy")}
+                        {category.createdAt ? format(new Date(category.createdAt), "MMM dd, yyyy") : "N/A"}
                       </TableCell>
                       <TableCell>
                         <Button

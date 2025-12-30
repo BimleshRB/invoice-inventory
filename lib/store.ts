@@ -17,37 +17,8 @@ const defaultStore: Store = {
   updatedAt: new Date("2024-01-01"),
 }
 
-// Initial categories
-const initialCategories: Category[] = [
-  {
-    id: "cat-1",
-    name: "Electronics",
-    description: "Electronic devices and accessories",
-    storeId: "store-1",
-    createdAt: new Date("2024-01-01"),
-  },
-  {
-    id: "cat-2",
-    name: "Accessories",
-    description: "Phone and computer accessories",
-    storeId: "store-1",
-    createdAt: new Date("2024-01-01"),
-  },
-  {
-    id: "cat-3",
-    name: "Software",
-    description: "Software licenses and subscriptions",
-    storeId: "store-1",
-    createdAt: new Date("2024-01-01"),
-  },
-  {
-    id: "cat-4",
-    name: "Hardware",
-    description: "Computer hardware components",
-    storeId: "store-1",
-    createdAt: new Date("2024-01-01"),
-  },
-]
+// Initial categories - now loaded from backend per store
+const initialCategories: Category[] = []
 
 // Initial products
 const initialProducts: Product[] = [
@@ -427,6 +398,9 @@ export const dataStore = {
   // Category methods
   getCategories(): Category[] {
     return useInternalStore.getState().categories
+  },
+  setCategories(categories: Category[]): void {
+    useInternalStore.setState({ categories })
   },
   addCategory(data: Omit<Category, 'id' | 'createdAt'>): Category {
     const category: Category = { ...data, id: generateId(), createdAt: new Date() }

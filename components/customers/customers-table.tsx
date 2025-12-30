@@ -18,6 +18,17 @@ interface CustomersTableProps {
 export function CustomersTable({ customers, onEdit, onDelete }: CustomersTableProps) {
   const [search, setSearch] = useState("")
 
+  function safeFormatDate(value: unknown, fmt = "MMM dd, yyyy") {
+    if (!value) return "-"
+    try {
+      const d = new Date(value as any)
+      if (isNaN(d.getTime())) return "-"
+      return format(d, fmt)
+    } catch {
+      return "-"
+    }
+  }
+
   const filteredCustomers = customers.filter(
     (customer) =>
       customer.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -96,7 +107,7 @@ export function CustomersTable({ customers, onEdit, onDelete }: CustomersTablePr
                     </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {format(new Date(customer.createdAt), "MMM dd, yyyy")}
+                    {safeFormatDate(customer.createdAt)}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>

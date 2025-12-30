@@ -27,7 +27,7 @@ export function ProductsTable({ products, categories, onEdit, onDelete }: Produc
     const matchesSearch =
       product.name.toLowerCase().includes(search.toLowerCase()) ||
       product.sku.toLowerCase().includes(search.toLowerCase())
-    const matchesCategory = categoryFilter === "all" || product.categoryId === categoryFilter
+    const matchesCategory = categoryFilter === "all" || product.categoryId === Number(categoryFilter)
     return matchesSearch && matchesCategory
   })
 
@@ -50,7 +50,7 @@ export function ProductsTable({ products, categories, onEdit, onDelete }: Produc
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
             {categories.map((category) => (
-              <SelectItem key={category.id} value={category.id}>
+              <SelectItem key={category.id} value={String(category.id)}>
                 {category.name}
               </SelectItem>
             ))}
@@ -104,7 +104,9 @@ export function ProductsTable({ products, categories, onEdit, onDelete }: Produc
                   </TableCell>
                   <TableCell className="font-mono text-sm">{product.sku}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">{product.category?.name}</Badge>
+                    <Badge variant="outline">
+                      {categories.find((c) => c.id === product.categoryId)?.name || "---"}
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-right">{formatCurrency(product.costPrice)}</TableCell>
                   <TableCell className="text-right font-medium">{formatCurrency(product.sellingPrice)}</TableCell>

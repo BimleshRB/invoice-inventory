@@ -12,11 +12,11 @@ export interface Store {
 }
 
 export interface Category {
-  id: string
+  id: string | number
   name: string
   description: string
-  storeId: string
-  createdAt: Date
+  storeId: string | number
+  createdAt: Date | string
 }
 
 export interface Product {
@@ -107,8 +107,40 @@ export interface ActivityLog {
 export interface DashboardStats {
   totalProducts: number
   lowStockProducts: number
-  expiringProducts: number
+  totalInvoices: number
   totalRevenue: number
+  totalRevenueChange: number
+  inventoryValue: number
+  averageProductValue: number
   pendingInvoices: number
+  expiringProducts: number
   totalCustomers: number
+}
+export enum UserRole {
+  SUPER_ADMIN = "SUPER_ADMIN",
+  STORE_OWNER = "STORE_OWNER",
+  STORE_ADMIN = "STORE_ADMIN",
+  USER = "USER",
+}
+
+export interface User {
+  id: string
+  username: string
+  fullName: string
+  storeName: string
+  storeId: string
+  phone: string
+  email: string
+  role: UserRole
+  roleDescription: string
+  createdAt?: Date
+}
+
+export interface CurrentUserInfo {
+  username: string
+  role: UserRole
+  storeId: string
+  isSuperAdmin: boolean
+  isStoreOwner: boolean
+  isStoreAdmin: boolean
 }

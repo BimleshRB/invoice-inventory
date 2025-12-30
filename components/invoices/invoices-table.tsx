@@ -32,10 +32,21 @@ export function InvoicesTable({ invoices, onView, onStatusChange, onDownload }: 
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
 
+  const safeFormatDate = (value: unknown) => {
+    if (!value) return "-"
+    try {
+      const d = typeof value === "string" ? new Date(value) : (value as Date)
+      if (isNaN(d.getTime())) return "-"
+      return format(d, "MMM dd, yyyy")
+    } catch {
+      return "-"
+    }
+  }
+
   const filteredInvoices = invoices.filter((invoice) => {
     const matchesSearch =
-      invoice.invoiceNumber.toLowerCase().includes(search.toLowerCase()) ||
-      invoice.customer?.name.toLowerCase().includes(search.toLowerCase())
+      (invoice.invoiceNumber || "").toLowerCase().includes(search.toLowerCase()) ||
+      (invoice.customer?.name || "").toLowerCase().includes(search.toLowerCase())
     const matchesStatus = statusFilter === "all" || invoice.status === statusFilter
     return matchesSearch && matchesStatus
   })
@@ -70,7 +81,7 @@ export function InvoicesTable({ invoices, onView, onStatusChange, onDownload }: 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="min-w-[120px]">Invoice</TableHead>
+              <TableHead className="min-w-30">Invoice</TableHead>
               <TableHead className="min-w-[150px]">Customer</TableHead>
               <TableHead className="min-w-[100px]">Date</TableHead>
               <TableHead className="min-w-[100px]">Due Date</TableHead>
@@ -91,7 +102,8 @@ export function InvoicesTable({ invoices, onView, onStatusChange, onDownload }: 
               </TableRow>
             ) : (
               filteredInvoices.map((invoice) => {
-                const status = statusConfig[invoice.status]
+                const statusKey = (invoice.status && statusConfig[invoice.status]) ? invoice.status : "draft"
+                const status = statusConfig[statusKey]
                 return (
                   <TableRow key={invoice.id}>
                     <TableCell>
@@ -109,10 +121,10 @@ export function InvoicesTable({ invoices, onView, onStatusChange, onDownload }: 
                       </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {format(new Date(invoice.createdAt), "MMM dd, yyyy")}
+                      {safeFormatDate(invoice.createdAt)}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {format(new Date(invoice.dueDate), "MMM dd, yyyy")}
+                      {safeFormatDate(invoice.dueDate)}
                     </TableCell>
                     <TableCell className="text-right font-medium text-foreground">
                       {formatCurrency(invoice.total)}

@@ -2,9 +2,10 @@
 
 import Link from "next/link"
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Package, Menu, X, BarChart3, FileText, Users, Upload, Shield } from "lucide-react"
+import { Package, Menu, X, BarChart3, FileText, Users, Upload, Shield, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
   NavigationMenu,
@@ -63,6 +64,8 @@ const navLinks = [
 export function LandingHeader() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -71,6 +74,19 @@ export function LandingHeader() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  useEffect(() => {
+    // Check if user is logged in
+    const token = localStorage.getItem("token")
+    setIsLoggedIn(!!token)
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem("token")
+    localStorage.removeItem("signup_temp_data")
+    setIsLoggedIn(false)
+    router.refresh()
+  }
 
   return (
     <header
@@ -135,12 +151,31 @@ export function LandingHeader() {
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-3">
             <ThemeToggle />
-            <Button asChild variant="ghost" size="sm" className="font-medium">
-              <Link href="/login">Log in</Link>
-            </Button>
-            <Button asChild size="sm" className="font-medium shadow-md">
-              <Link href="/signup">Start Free Trial</Link>
-            </Button>
+            {isLoggedIn ? (
+              <>
+                <Button asChild size="sm" className="font-medium shadow-md">
+                  <Link href="/dashboard">Go to Dashboard</Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="font-medium text-muted-foreground hover:text-destructive hover:border-destructive"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Log out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button asChild variant="ghost" size="sm" className="font-medium">
+                  <Link href="/login">Log in</Link>
+                </Button>
+                <Button asChild size="sm" className="font-medium shadow-md">
+                  <Link href="/signup">Start Free Trial</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -192,12 +227,33 @@ export function LandingHeader() {
                 </Link>
               ))}
               <div className="flex flex-col gap-2 mt-4 px-3">
-                <Button asChild variant="outline" className="w-full justify-center bg-transparent">
-                  <Link href="/login">Log in</Link>
-                </Button>
-                <Button asChild className="w-full justify-center">
-                  <Link href="/signup">Start Free Trial</Link>
-                </Button>
+                {isLoggedIn ? (
+                  <>
+                    <Button asChild className="w-full justify-center">
+                      <Link href="/dashboard">Go to Dashboard</Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-center text-muted-foreground hover:text-destructive hover:border-destructive bg-transparent"
+                      onClick={() => {
+                        handleLogout()
+                        setIsMobileMenuOpen(false)
+                      }}
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Log out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button asChild variant="outline" className="w-full justify-center bg-transparent">
+                      <Link href="/login">Log in</Link>
+                    </Button>
+                    <Button asChild className="w-full justify-center">
+                      <Link href="/signup">Start Free Trial</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </nav>
           </div>

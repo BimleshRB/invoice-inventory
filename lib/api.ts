@@ -1,6 +1,8 @@
 /* Simple API client wrapper for frontend to communicate with backend
    Uses NEXT_PUBLIC_API_URL and automatically attaches Authorization header when token available. */
 
+import type { User, UserRole, CurrentUserInfo } from './types';
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 export async function apiFetch(path: string, options: RequestInit = {}) {
@@ -28,3 +30,37 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
   if (contentType.includes('application/json')) return res.json();
   return res.text();
 }
+
+/**
+ * Admin & Role Management API
+ */
+export const adminApi = {
+  // Get current user's role info
+  getMyRole: async (): Promise<CurrentUserInfo> => apiFetch('/admin/me/role'),
+
+  // Get all users (Super Admin only)
+  getAllUsers: async (): Promise<User[]> => apiFetch('/admin/users'),
+
+  // Get all admins in a store
+  getStoreAdmins: async (storeId: string): Promise<User[]> => 
+    apiFetch(`/admin/stores/${storeId}/admins`),
+
+  // Get all users in a store
+  getStoreUsers: async (storeId: string): Promise<User[]> => 
+    apiFetch(`/admin/stores/${storeId}/users`),
+
+  // Assign role to a user
+  assignRole: async (userId: string, role: UserRole): Promise<User> => 
+    apiFetch(`/admin/users/${userId}/role`, {
+      method: 'PUT',
+      body: JSON.stringify({ role }),
+    }),
+
+  // Remove admin role from user (demote to USER)
+  removeAdminRole: async (userId: string): Promise<User> => 
+    apiFetch(`/admin/users/${userId}/admin`, { method: 'DELETE' }),
+
+  // Get users by role (Super Admin only)
+  getUsersByRole: async (role: UserRole): Promise<User[]> => 
+    apiFetch(`/admin/users/by-role/${role}`),
+};

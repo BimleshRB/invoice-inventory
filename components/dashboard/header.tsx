@@ -1,10 +1,11 @@
 "use client"
 
-import { Bell, Search, Menu } from "lucide-react"
+import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { SearchBar } from "@/components/dashboard/search-bar"
+import { NotificationsBell } from "@/components/dashboard/notifications"
 
 interface HeaderProps {
   title: string
@@ -31,21 +32,12 @@ export function Header({ title, description }: HeaderProps) {
         <h1 className="text-lg font-semibold text-foreground">{title}</h1>
         {description && <p className="text-sm text-muted-foreground">{description}</p>}
       </div>
-      <div className="hidden items-center gap-2 md:flex">
-        <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input type="search" placeholder="Search..." className="w-64 pl-8" />
+      <div className="hidden items-center gap-3 md:flex">
+        <SearchBar />
+        <NotificationsBell />
+        <div className="lg:hidden">
+          <ThemeToggle />
         </div>
-      </div>
-      <Button variant="ghost" size="icon" className="relative">
-        <Bell className="h-5 w-5" />
-        <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground">
-          3
-        </span>
-        <span className="sr-only">Notifications</span>
-      </Button>
-      <div className="lg:hidden">
-        <ThemeToggle />
       </div>
     </header>
   )

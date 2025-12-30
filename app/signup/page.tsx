@@ -11,6 +11,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Package, Eye, EyeOff, Loader2, ArrowLeft, Check, X, Users, FileText, TrendingUp } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "@/lib/utils"
+import { useToast } from "@/hooks/use-toast"
+import { Toaster } from "@/components/ui/toaster"
 
 const STORAGE_KEY = "signup_form"
 
@@ -32,6 +34,7 @@ export default function SignupPage() {
     storeName: "",
     agreeTerms: false,
   })
+  const { toast } = useToast()
 
   // Load form data from localStorage
   useEffect(() => {
@@ -72,12 +75,27 @@ export default function SignupPage() {
       })
       const data = await res.json()
       if (!res.ok) {
-        alert(data.error || "Signup failed")
+        const message = data?.error || (res.status === 409 ? "User already exists" : "Signup failed")
+        toast({
+          title: "Sign-up error",
+          description: message,
+          variant: "destructive",
+        })
         setIsLoading(false)
         return
       }
       if (data.token) localStorage.setItem("token", data.token)
       localStorage.removeItem(STORAGE_KEY)
+      // Store signup data for details page
+      localStorage.setItem("signup_temp_data", JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        storeName: formData.storeName,
+      }))
+      toast({
+        title: "Account created",
+        description: "Your account is ready. Let’s complete your profile.",
+      })
       // check profile status and redirect accordingly
       try {
         const token = data.token
@@ -98,7 +116,11 @@ export default function SignupPage() {
         router.push("/signup/details")
       }
     } catch (err) {
-      alert("Network error")
+      toast({
+        title: "Network error",
+        description: "Unable to reach the server. Please try again.",
+        variant: "destructive",
+      })
       setIsLoading(false)
     }
   }
@@ -198,6 +220,7 @@ export default function SignupPage() {
 
         <main className="flex-1 flex items-center justify-center p-6 overflow-auto">
           <div className="w-full max-w-sm">
+            <Toaster />
             {/* Mobile Logo */}
             <div className="lg:hidden flex justify-center mb-8">
               <Link href="/" className="flex items-center gap-2.5">

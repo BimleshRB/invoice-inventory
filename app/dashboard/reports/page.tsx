@@ -9,74 +9,86 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Bar, BarChart, XAxis, YAxis, PieChart, Pie, Cell } from "recharts"
-import { dataStore } from "@/lib/store"
+import { dashboardApi } from "@/lib/api-client"
 import { formatCurrency } from "@/lib/utils"
-import type { Invoice, Product } from "@/lib/types"
 import { Download, TrendingUp, Package, IndianRupee, ShoppingCart } from "lucide-react"
-import { format, subDays } from "date-fns"
+import { format } from "date-fns"
+
+interface DashboardStats {
+  totalInvoices: number
+  totalRevenue: number | string
+  paidInvoices: number
+  avgOrderValue: number | string
+  totalProducts: number
+  lowStockCount: number
+}
+
+interface TopProduct {
+  name: string
+  quantity: number
+  revenue: number | string
+}
+
+interface SalesChartData {
+  name: string
+  sales: number | string
+}
+
+interface RecentActivity {
+  id: string | number
+  type: string
+  description: string
+  amount: number | string
+  status: string
+  createdAt: string
+}
 
 export default function ReportsPage() {
-  const [invoices, setInvoices] = useState<Invoice[]>([])
-  const [products, setProducts] = useState<Product[]>([])
-  const [period, setPeriod] = useState("30")
+  const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [topProducts, setTopProducts] = useState<TopProduct[]>([])
+  const [chartData, setChartData] = useState<SalesChartData[]>([])
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([])
+  const [period, setPeriod] = useState("month")
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setInvoices(dataStore.getInvoices())
-    setProducts(dataStore.getProducts())
-  }, [])
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true)
+        const [statsRes, productsRes, chartRes, activityRes] = await Promise.all([
+          dashboardApi.getStats(),
+          dashboardApi.getTopProducts(),
+          dashboardApi.getSalesChartData(period),
+          dashboardApi.getRecentActivity(0, 10),
+        ])
 
-  // Calculate metrics
-  const paidInvoices = invoices.filter((i) => i.status === "paid")
-  const totalRevenue = paidInvoices.reduce((sum, i) => sum + i.total, 0)
-  const totalSales = invoices.length
-  const avgOrderValue = totalSales > 0 ? totalRevenue / paidInvoices.length : 0
-  const totalProducts = products.length
-  const lowStockCount = products.filter((p) => p.quantity <= p.minStockLevel).length
-
-  // Revenue by day (last 7 days)
-  const revenueByDay = Array.from({ length: 7 }, (_, i) => {
-    const date = subDays(new Date(), 6 - i)
-    const dayInvoices = paidInvoices.filter(
-      (inv) => format(new Date(inv.createdAt), "yyyy-MM-dd") === format(date, "yyyy-MM-dd"),
-    )
-    return {
-      date: format(date, "EEE"),
-      revenue: dayInvoices.reduce((sum, inv) => sum + inv.total, 0),
-    }
-  })
-
-  // Invoice status distribution
-  const statusCounts = invoices.reduce(
-    (acc, inv) => {
-      acc[inv.status] = (acc[inv.status] || 0) + 1
-      return acc
-    },
-    {} as Record<string, number>,
-  )
-
-  const statusData = Object.entries(statusCounts).map(([status, count]) => ({
-    name: status.charAt(0).toUpperCase() + status.slice(1),
-    value: count,
-  }))
-
-  // Top selling products
-  const productSales: Record<string, { name: string; quantity: number; revenue: number }> = {}
-  invoices.forEach((inv) => {
-    inv.items.forEach((item) => {
-      const product = item.product
-      if (product) {
-        if (!productSales[product.id]) {
-          productSales[product.id] = { name: product.name, quantity: 0, revenue: 0 }
-        }
-        productSales[product.id].quantity += item.quantity
-        productSales[product.id].revenue += item.total
+        setStats(statsRes)
+        // Ensure all responses are arrays
+        setTopProducts(Array.isArray(productsRes) ? productsRes : [])
+        setChartData(Array.isArray(chartRes) ? chartRes : [])
+        setRecentActivity(Array.isArray(activityRes) ? activityRes : [])
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error)
+        // Reset to empty arrays on error
+        setStats(null)
+        setTopProducts([])
+        setChartData([])
+        setRecentActivity([])
+      } finally {
+        setLoading(false)
       }
-    })
-  })
+    }
 
-  const topProducts = Object.values(productSales)
-    .sort((a, b) => b.revenue - a.revenue)
-    .slice(0, 5)
+    fetchDashboardData()
+  }, [period])
+
+  // Safe numeric conversion
+  const totalRevenue = typeof stats?.totalRevenue === "string"
+    ? parseFloat(stats.totalRevenue)
+    : stats?.totalRevenue || 0
+  const avgOrderValue = typeof stats?.avgOrderValue === "string"
+    ? parseFloat(stats.avgOrderValue)
+    : stats?.avgOrderValue || 0
 
   const COLORS = [
     "hsl(var(--primary))",
@@ -95,23 +107,26 @@ Generated: ${format(new Date(), "MMMM dd, yyyy")}
 SUMMARY
 ==================================
 Total Revenue: ${formatCurrency(totalRevenue)}
-Total Sales: ${totalSales}
+Total Invoices: ${stats?.totalInvoices || 0}
+Paid Invoices: ${stats?.paidInvoices || 0}
 Average Order Value: ${formatCurrency(avgOrderValue)}
-Total Products: ${totalProducts}
-Low Stock Items: ${lowStockCount}
+Total Products: ${stats?.totalProducts || 0}
+Low Stock Items: ${stats?.lowStockCount || 0}
 
 ==================================
 TOP SELLING PRODUCTS
 ==================================
-${topProducts.map((p, i) => `${i + 1}. ${p.name} - ${p.quantity} units - ${formatCurrency(p.revenue)}`).join("\n")}
+${topProducts.map((p, i) => {
+  const revenue = typeof p.revenue === "string" ? parseFloat(p.revenue) : p.revenue
+  return `${i + 1}. ${p.name} - ${p.quantity} units - ${formatCurrency(revenue)}`
+}).join("\n")}
 
 ==================================
-INVOICE STATUS BREAKDOWN
+RECENT ACTIVITY
 ==================================
-${Object.entries(statusCounts)
-  .map(([status, count]) => `${status.toUpperCase()}: ${count}`)
-  .join("\n")}
-`
+${recentActivity.map((a) => `${a.createdAt}: ${a.description} - ${a.status}`).join("\n")}
+    `.trim()
+
     const blob = new Blob([report], { type: "text/plain" })
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
@@ -132,12 +147,11 @@ ${Object.entries(statusCounts)
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="7">Last 7 days</SelectItem>
-              <SelectItem value="30">Last 30 days</SelectItem>
-              <SelectItem value="90">Last 90 days</SelectItem>
+              <SelectItem value="week">Weekly</SelectItem>
+              <SelectItem value="month">Monthly</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={exportReport}>
+          <Button onClick={exportReport} disabled={loading}>
             <Download className="mr-2 h-4 w-4" />
             Export Report
           </Button>
@@ -152,7 +166,7 @@ ${Object.entries(statusCounts)
             </CardHeader>
             <CardContent>
               <div className="text-lg sm:text-2xl font-bold text-foreground">{formatCurrency(totalRevenue)}</div>
-              <p className="text-xs text-muted-foreground">From {paidInvoices.length} paid invoices</p>
+              <p className="text-xs text-muted-foreground">From {stats?.paidInvoices || 0} paid invoices</p>
             </CardContent>
           </Card>
           <Card>
@@ -171,8 +185,8 @@ ${Object.entries(statusCounts)
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg sm:text-2xl font-bold text-foreground">{totalProducts}</div>
-              <p className="text-xs text-muted-foreground">{lowStockCount} low stock</p>
+              <div className="text-lg sm:text-2xl font-bold text-foreground">{stats?.totalProducts || 0}</div>
+              <p className="text-xs text-muted-foreground">{stats?.lowStockCount || 0} low stock</p>
             </CardContent>
           </Card>
           <Card>
@@ -181,8 +195,8 @@ ${Object.entries(statusCounts)
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg sm:text-2xl font-bold text-foreground">{totalSales}</div>
-              <p className="text-xs text-muted-foreground">{paidInvoices.length} paid</p>
+              <div className="text-lg sm:text-2xl font-bold text-foreground">{stats?.totalInvoices || 0}</div>
+              <p className="text-xs text-muted-foreground">{stats?.paidInvoices || 0} paid</p>
             </CardContent>
           </Card>
         </div>
@@ -191,88 +205,94 @@ ${Object.entries(statusCounts)
         <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base sm:text-lg">Revenue Trend</CardTitle>
-              <CardDescription>Daily revenue over the last 7 days</CardDescription>
+              <CardTitle className="text-base sm:text-lg">Sales Trend</CardTitle>
+              <CardDescription>Revenue trend ({period})</CardDescription>
             </CardHeader>
             <CardContent>
-              <ChartContainer
-                config={{ revenue: { label: "Revenue", color: "hsl(var(--primary))" } }}
-                className="h-62.5 sm:h-75"
-              >
-                <BarChart data={revenueByDay}>
-                  <XAxis dataKey="date" />
-                  <YAxis tickFormatter={(value) => `₹${value}`} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ChartContainer>
+              {Array.isArray(chartData) && chartData.length > 0 ? (
+                <ChartContainer
+                  config={{ sales: { label: "Sales", color: "hsl(var(--primary))" } }}
+                  className="h-72"
+                >
+                  <BarChart data={chartData}>
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="sales" fill="hsl(var(--primary))" />
+                  </BarChart>
+                </ChartContainer>
+              ) : (
+                <p className="text-sm text-muted-foreground">No data available</p>
+              )}
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base sm:text-lg">Invoice Status</CardTitle>
-              <CardDescription>Distribution of invoice statuses</CardDescription>
+              <CardTitle className="text-base sm:text-lg">Top Products</CardTitle>
+              <CardDescription>By revenue</CardDescription>
             </CardHeader>
             <CardContent>
-              <ChartContainer config={{ value: { label: "Count" } }} className="h-62.5 sm:h-75">
-                <PieChart>
-                  <Pie
-                    data={statusData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={2}
-                    dataKey="value"
-                    label={({ name, value }) => `${name}: ${value}`}
-                  >
-                    {statusData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                </PieChart>
-              </ChartContainer>
+              <div className="space-y-3">
+                {Array.isArray(topProducts) && topProducts.length > 0 ? (
+                  topProducts.slice(0, 5).map((product, index) => (
+                    <div key={index} className="flex items-center justify-between border-b pb-2 last:border-0">
+                      <div>
+                        <p className="font-medium text-sm">{product.name || 'Unknown'}</p>
+                        <p className="text-xs text-muted-foreground">{product.quantity || 0} units sold</p>
+                      </div>
+                      <p className="font-bold text-sm">
+                        {formatCurrency(typeof product.revenue === "string" ? parseFloat(product.revenue) : product.revenue || 0)}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">No product data available</p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Top Products Table */}
+        {/* Recent Activity Table */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base sm:text-lg">Top Selling Products</CardTitle>
-            <CardDescription>Products with highest sales revenue</CardDescription>
+            <CardTitle className="text-base sm:text-lg">Recent Activity</CardTitle>
+            <CardDescription>Latest transactions and updates</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Rank</TableHead>
-                    <TableHead>Product</TableHead>
-                    <TableHead className="text-right">Units Sold</TableHead>
-                    <TableHead className="text-right">Revenue</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Description</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Amount</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Status</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Date</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {topProducts.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center text-muted-foreground">
-                        No sales data available
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    topProducts.map((product, index) => (
+                  {Array.isArray(recentActivity) && recentActivity.length > 0 ? (
+                    recentActivity.slice(0, 10).map((activity, index) => (
                       <TableRow key={index}>
-                        <TableCell>
-                          <Badge variant="outline">#{index + 1}</Badge>
+                        <TableCell className="text-xs sm:text-sm">{activity.description || 'N/A'}</TableCell>
+                        <TableCell className="text-xs sm:text-sm font-medium">
+                          {formatCurrency(typeof activity.amount === "string" ? parseFloat(activity.amount) : activity.amount || 0)}
                         </TableCell>
-                        <TableCell className="font-medium text-foreground">{product.name}</TableCell>
-                        <TableCell className="text-right">{product.quantity}</TableCell>
-                        <TableCell className="text-right font-medium">{formatCurrency(product.revenue)}</TableCell>
+                        <TableCell className="text-xs sm:text-sm">
+                          <Badge variant={activity.status === "paid" ? "default" : "secondary"}>
+                            {activity.status || 'unknown'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-xs sm:text-sm">{format(new Date(activity.createdAt), "MMM dd, yyyy")}</TableCell>
                       </TableRow>
                     ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center text-xs sm:text-sm text-muted-foreground py-4">
+                        No activity records available
+                      </TableCell>
+                    </TableRow>
                   )}
                 </TableBody>
               </Table>

@@ -10,8 +10,19 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Package, Eye, EyeOff, Loader2, ArrowLeft, Shield, Zap, BarChart3, X } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { useToast } from "@/hooks/use-toast"
+import { Toaster } from "@/components/ui/toaster"
 
 const STORAGE_KEY = "login_form"
+
+function getRoleFromToken(token: string): string {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    return payload.role || "ROLE_USER"
+  } catch {
+    return "ROLE_USER"
+  }
+}
 
 export default function LoginPage() {
   const router = useRouter()
@@ -22,6 +33,7 @@ export default function LoginPage() {
     password: "",
     remember: false,
   })
+  const { toast } = useToast()
 
   // Load form data from localStorage
   useEffect(() => {
@@ -60,35 +72,58 @@ export default function LoginPage() {
       })
       const data = await res.json()
       if (!res.ok) {
-        alert(data.error || "Login failed")
+        const message = data?.error || (res.status === 401 ? "Invalid credentials" : res.status === 404 ? "User not found" : "Login failed")
+        toast({
+          title: "Sign-in error",
+          description: message,
+          variant: "destructive",
+        })
         setIsLoading(false)
         return
       }
       // persist token and clear stored form
-      if (data.token) localStorage.setItem("token", data.token)
+      if (data.token) {
+        localStorage.setItem("token", data.token)
+        const role = getRoleFromToken(data.token)
+        localStorage.setItem("userRole", role)
+      }
       localStorage.removeItem(STORAGE_KEY)
-      // check profile status
-      try {
-        const token = data.token
-        const profileRes = await fetch("http://localhost:8080/api/profile/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        if (profileRes.ok) {
-          const profile = await profileRes.json()
-          if (profile.profileCompleted) {
-            router.push("/dashboard")
+      toast({
+        title: "Welcome back",
+        description: "Signed in successfully. Redirecting...",
+      })
+      // Redirect based on role
+      const role = getRoleFromToken(data.token)
+      if (role === "ROLE_SUPER_ADMIN" || role === "ROLE_ADMIN") {
+        router.push("/dashboard/admin")
+      } else {
+        // check profile status for non-admin users
+        try {
+          const token = data.token
+          const profileRes = await fetch("http://localhost:8080/api/profile/me", {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          if (profileRes.ok) {
+            const profile = await profileRes.json()
+            if (profile.profileCompleted) {
+              router.push("/dashboard")
+            } else {
+              router.push("/signup/details")
+            }
           } else {
-            router.push("/signup/details")
+            // if profile endpoint not accessible, go to dashboard
+            router.push("/dashboard")
           }
-        } else {
-          // if profile endpoint not accessible, go to dashboard
+        } catch (err) {
           router.push("/dashboard")
         }
-      } catch (err) {
-        router.push("/dashboard")
       }
     } catch (err) {
-      alert("Network error")
+      toast({
+        title: "Network error",
+        description: "Unable to reach the server. Please try again.",
+        variant: "destructive",
+      })
       setIsLoading(false)
     }
   }
@@ -169,6 +204,7 @@ export default function LoginPage() {
 
         <main className="flex-1 flex items-center justify-center p-6">
           <div className="w-full max-w-sm">
+            <Toaster />
             {/* Mobile Logo */}
             <div className="lg:hidden flex justify-center mb-8">
               <Link href="/" className="flex items-center gap-2.5">

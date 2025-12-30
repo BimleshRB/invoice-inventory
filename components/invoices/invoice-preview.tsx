@@ -27,23 +27,39 @@ const statusConfig = {
 export function InvoicePreview({ open, onOpenChange, invoice, onDownload }: InvoicePreviewProps) {
   if (!invoice) return null
 
-  const status = statusConfig[invoice.status]
+  const statusKey = invoice.status && statusConfig[invoice.status] ? invoice.status : "draft"
+  const status = statusConfig[statusKey]
+
+  const safeFormatDate = (value: unknown) => {
+    if (!value) return "-"
+    try {
+      const d = typeof value === "string" ? new Date(value) : (value as Date)
+      if (isNaN(d.getTime())) return "-"
+      return format(d, "MMMM dd, yyyy")
+    } catch {
+      return "-"
+    }
+  }
 
   const handlePrint = () => {
     window.print()
   }
 
+  const handleDownloadPrint = () => {
+    onDownload(invoice)
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[800px]">
-        <DialogHeader className="flex flex-row items-center justify-between">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-200 print:max-w-none print:max-h-none print:overflow-visible">
+        <DialogHeader className="flex flex-row items-center justify-between print:hidden">
           <DialogTitle>Invoice Preview</DialogTitle>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handlePrint}>
               <Printer className="mr-2 h-4 w-4" />
               <span className="hidden sm:inline">Print</span>
             </Button>
-            <Button variant="outline" size="sm" onClick={() => onDownload(invoice)}>
+            <Button variant="outline" size="sm" onClick={handleDownloadPrint}>
               <Download className="mr-2 h-4 w-4" />
               <span className="hidden sm:inline">Download</span>
             </Button>
@@ -51,7 +67,7 @@ export function InvoicePreview({ open, onOpenChange, invoice, onDownload }: Invo
         </DialogHeader>
 
         <div
-          className="rounded-lg border border-border bg-card p-4 sm:p-6 print:border-0 print:shadow-none"
+          className="rounded-lg border border-border bg-card p-4 sm:p-6 print:border-0 print:shadow-none print:p-0"
           id="invoice-content"
         >
           {/* Header */}
@@ -64,7 +80,7 @@ export function InvoicePreview({ open, onOpenChange, invoice, onDownload }: Invo
             </div>
             <div className="text-left sm:text-right">
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">INVOICE</h1>
-              <p className="mt-1 font-mono text-base sm:text-lg font-semibold text-primary">{invoice.invoiceNumber}</p>
+              <p className="mt-1 font-mono text-base sm:text-lg font-semibold text-primary">{invoice.invoiceNumber || ""}</p>
               <Badge className={`mt-2 ${status.className}`}>{status.label}</Badge>
             </div>
           </div>
@@ -84,13 +100,13 @@ export function InvoicePreview({ open, onOpenChange, invoice, onDownload }: Invo
               <div className="mb-2">
                 <span className="text-sm text-muted-foreground">Invoice Date:</span>
                 <span className="ml-2 font-medium text-foreground">
-                  {format(new Date(invoice.createdAt), "MMMM dd, yyyy")}
+                  {safeFormatDate(invoice.createdAt)}
                 </span>
               </div>
               <div className="mb-2">
                 <span className="text-sm text-muted-foreground">Due Date:</span>
                 <span className="ml-2 font-medium text-foreground">
-                  {format(new Date(invoice.dueDate), "MMMM dd, yyyy")}
+                  {safeFormatDate(invoice.dueDate)}
                 </span>
               </div>
               {invoice.store?.taxId && (
@@ -117,7 +133,7 @@ export function InvoicePreview({ open, onOpenChange, invoice, onDownload }: Invo
                 </tr>
               </thead>
               <tbody>
-                {invoice.items.map((item, index) => (
+                {(invoice.items || []).map((item, index) => (
                   <tr key={index} className="border-b border-border">
                     <td className="py-3">
                       <p className="font-medium text-foreground">{item.product?.name || "Product"}</p>
