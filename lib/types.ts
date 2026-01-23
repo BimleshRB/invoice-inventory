@@ -24,15 +24,12 @@ export interface Product {
   sku: string
   name: string
   description: string
-  categoryId: string
+  categoryId: string | number
   category?: Category
-  costPrice: number
-  sellingPrice: number
-  quantity: number
+  sellingPrice?: number
   minStockLevel: number
   unit: string
   barcode: string | null
-  expiryDate: Date | null
   imageUrl: string | null
   storeId: string
   isActive: boolean
@@ -57,6 +54,7 @@ export interface Invoice {
   customer?: Customer
   storeId: string
   store?: Store
+  type?: "in" | "out"
   items: InvoiceItem[]
   subtotal: number
   taxRate: number
@@ -77,8 +75,12 @@ export interface InvoiceItem {
   product?: Product
   quantity: number
   unitPrice: number
-  discount: number
-  total: number
+  discountType: "percentage" | "fixed" // percentage or fixed amount
+  discountValue: number // % or amount
+  taxRate: number // % tax rate for this item
+  subtotal: number // after discount: (qty × unitPrice) - discount
+  taxAmount: number // subtotal × taxRate / 100
+  total: number // subtotal + taxAmount
 }
 
 export interface StockMovement {

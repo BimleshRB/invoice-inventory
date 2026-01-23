@@ -270,7 +270,7 @@ export function StoreAdmins({ storeId }: StoreAdminsProps) {
                 id="fullName"
                 value={newAdminFullName}
                 onChange={(e) => setNewAdminFullName(e.target.value)}
-                placeholder="John Doe"
+                placeholder="Amit Sharma"
               />
             </div>
             <div className="space-y-2">

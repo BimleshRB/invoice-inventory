@@ -13,6 +13,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { API_BASE } from "@/lib/api-client"
+import { getAuthUser, isTokenExpired } from "@/hooks/use-auth-guard"
 
 const STORAGE_KEY = "login_form"
 
@@ -35,6 +36,21 @@ export default function LoginPage() {
     remember: false,
   })
   const { toast } = useToast()
+
+  // Check if already logged in with valid token - redirect to dashboard
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+    if (token && !isTokenExpired(token)) {
+      const authUser = getAuthUser()
+      if (authUser) {
+        if (authUser.isSuperAdmin || authUser.isAdmin) {
+          router.push("/dashboard/admin")
+        } else {
+          router.push("/dashboard")
+        }
+      }
+    }
+  }, [router])
 
   // Load form data from localStorage
   useEffect(() => {

@@ -66,15 +66,49 @@ export async function apiRequest<T = any>(
     console.log(`[API] Full headers:`, headers)
     const response = await fetch(url, fetchOptions)
 
+    if (response.status === 401) {
+      // Do not auto-clear token or redirect globally here.
+      // Let the calling page/hook decide how to handle auth state.
+      console.warn("[API] 401 Unauthorized - returning error to caller (no global redirect)");
+      return { error: "Unauthorized", status: 401 };
+    }
+
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: response.statusText }))
+      const errorData = await response.json().catch(() => null)
+      let errorMessage: string
+      
+      // Handle different error formats
+      if (typeof errorData?.error === 'string') {
+        errorMessage = errorData.error
+      } else if (typeof errorData?.message === 'string') {
+        errorMessage = errorData.message
+      } else if (errorData?.errors) {
+        // Handle validation errors object like {items: ["error message"]}
+        if (typeof errorData.errors === 'string') {
+          errorMessage = errorData.errors
+        } else if (typeof errorData.errors === 'object') {
+          // Convert object to readable string
+          const errorsArray = Object.entries(errorData.errors)
+            .map(([field, messages]) => {
+              const msgArray = Array.isArray(messages) ? messages : [messages]
+              return `${field}: ${msgArray.join(', ')}`
+            })
+          errorMessage = errorsArray.join('; ')
+        } else {
+          errorMessage = 'Validation error'
+        }
+      } else {
+        errorMessage = response.statusText || 'Request failed'
+      }
+      
       console.log(`[API] ${options.method || 'GET'} ${endpoint} - ERROR:`, {
         status: response.status,
         statusText: response.statusText,
-        error: errorData?.error || errorData?.message,
+        errorData,
+        resolvedError: errorMessage,
       })
       return {
-        error: errorData?.error || errorData?.message || 'Request failed',
+        error: errorMessage,
         status: response.status,
       }
     }
@@ -250,13 +284,10 @@ export interface Product {
   name: string
   description?: string
   categoryId?: number
-  costPrice: number
-  sellingPrice: number
-  quantity: number
+  sellingPrice?: number
   minStockLevel?: number
   unit?: string
   barcode?: string
-  expiryDate?: string
   imageUrl?: string
   storeId?: string
   createdAt?: string
@@ -267,6 +298,7 @@ export interface Invoice {
   id: number
   invoiceNumber: string
   customerId?: number
+  type?: 'in' | 'out'
   items: InvoiceItem[]
   total: number
   tax?: number

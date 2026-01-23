@@ -5,6 +5,7 @@ import { Header } from "@/components/dashboard/header"
 import { ProductsTable } from "@/components/products/products-table"
 import { ProductForm } from "@/components/products/product-form"
 import { CategoryDialog } from "@/components/products/category-dialog"
+import { InventoryIntakeDialog } from "@/components/products/inventory-intake-dialog"
 import { Button } from "@/components/ui/button"
 import {
   AlertDialog,
@@ -27,6 +28,7 @@ export default function ProductsPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false)
+  const [isIntakeDialogOpen, setIsIntakeDialogOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | undefined>()
   const [deleteProduct, setDeleteProduct] = useState<Product | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -111,29 +113,65 @@ export default function ProductsPage() {
     loadData()
   }, [toast])
 
+  const normalizeProductPayload = (data: Partial<Product>) => {
+    const normalized: any = {
+      name: data.name,
+      description: data.description,
+      categoryId: data.categoryId ? Number(data.categoryId) : undefined,
+      minStockLevel: Number(data.minStockLevel ?? 0),
+      unit: data.unit || "pcs",
+      barcode: data.barcode,
+      isActive: data.isActive !== false,
+    }
+    
+    // Include optional fields only if they have values
+    if (data.sku) normalized.sku = data.sku
+    if (data.costPrice !== undefined && data.costPrice !== null) normalized.costPrice = Number(data.costPrice)
+    if (data.sellingPrice !== undefined && data.sellingPrice !== null) normalized.sellingPrice = Number(data.sellingPrice)
+    if (data.quantity !== undefined && data.quantity !== null) normalized.quantity = Number(data.quantity)
+    if (data.imageUrl) normalized.imageUrl = data.imageUrl
+    if (data.expiryDate) normalized.expiryDate = data.expiryDate
+    
+    console.log("[NORMALIZE] Normalized payload:", normalized)
+    return normalized
+  }
+
   const handleAddProduct = async (data: Partial<Product>) => {
     setIsSaving(true)
     try {
-      const res = await productApi.create(data)
+      const payload = normalizeProductPayload(data)
+      console.log("[ADD-PRODUCT] Form data:", data)
+      console.log("[ADD-PRODUCT] Normalized payload:", payload)
+      console.log("[ADD-PRODUCT] Making API request to /products")
+      
+      const res = await productApi.create(payload)
+      console.log("[ADD-PRODUCT] API response:", res)
+      
       if (res.error) {
+        console.error("[ADD-PRODUCT] API error:", res)
+        const errorMessage = typeof res.error === 'string' ? res.error : JSON.stringify(res.error)
         toast({
-          title: "Failed to add product",
-          description: res.error,
+          title: res.status === 409 ? "Duplicate SKU or Name" : "Failed to add product",
+          description: res.status === 409 ? "SKU or product name must be unique per store." : errorMessage,
           variant: "destructive",
         })
       } else {
+        console.log("[ADD-PRODUCT] Product created successfully:", res.data)
         toast({
           title: "Product Added",
           description: `${data.name} has been added to inventory.`,
         })
         setIsFormOpen(false)
+        setSelectedProduct(undefined)
         // Reload products
         await reloadProducts()
       }
     } catch (err) {
+      console.error("[ADD-PRODUCT] Exception:", err)
+      const errorMsg = err instanceof Error ? err.message : "Failed to add product"
       toast({
         title: "Error",
-        description: "Failed to add product",
+        description: errorMsg,
         variant: "destructive",
       })
     } finally {
@@ -146,7 +184,7 @@ export default function ProductsPage() {
     setIsSaving(true)
     try {
       console.log("[UPDATE] Starting product update for ID:", selectedProduct.id)
-      const payload = { ...data };
+      const payload = normalizeProductPayload(data)
       delete (payload as any).createdAt; // Ensure createdAt is not sent during update
       console.log("[UPDATE] Payload:", payload)
       
@@ -156,8 +194,8 @@ export default function ProductsPage() {
       if (res.error) {
         console.error("[UPDATE] Update failed:", res.error)
         toast({
-          title: "Failed to update product",
-          description: res.error,
+          title: res.status === 409 ? "Duplicate SKU or Name" : "Failed to update product",
+          description: res.status === 409 ? "SKU or product name must be unique per store." : res.error,
           variant: "destructive",
         })
         setIsSaving(false)
@@ -174,6 +212,9 @@ export default function ProductsPage() {
         )
         console.log("[UPDATE] Product state updated with response:", updatedProduct)
       }
+
+      // Ensure freshest quantities (recomputed server-side from batches)
+      await reloadProducts()
       
       toast({
         title: "Product Updated",
@@ -292,7 +333,7 @@ export default function ProductsPage() {
         product={selectedProduct}
         categories={categories}
         onSubmit={selectedProduct ? handleUpdateProduct : handleAddProduct}
-        isLoading={isSaving}
+        isSaving={isSaving}
       />
 
       <AlertDialog open={!!deleteProduct} onOpenChange={() => setDeleteProduct(null)}>
@@ -321,6 +362,13 @@ export default function ProductsPage() {
         open={isCategoryDialogOpen}
         onOpenChange={setIsCategoryDialogOpen}
         onSuccess={handleCategoryCreated}
+      />
+
+      <InventoryIntakeDialog
+        open={isIntakeDialogOpen}
+        onOpenChange={setIsIntakeDialogOpen}
+        categories={categories}
+        onSuccess={reloadProducts}
       />
 
       <Toaster />

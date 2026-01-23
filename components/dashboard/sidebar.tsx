@@ -26,16 +26,25 @@ import {
   Mail,
   MessageSquare,
   Phone,
+  ClipboardList,
+  Boxes,
+  ClipboardCheck,
 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { API_BASE } from "@/lib/api-client"
+import { getAuthUser } from "@/hooks/use-auth-guard"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Products", href: "/dashboard/products", icon: Package },
+  { name: "Product Batches", href: "/dashboard/batches", icon: Upload },
   { name: "Invoices", href: "/dashboard/invoices", icon: FileText },
   { name: "Customers", href: "/dashboard/customers", icon: Users },
   { name: "Stock Movements", href: "/dashboard/stock", icon: ArrowUpDown },
+  { name: "Procurement", href: "/dashboard/procurement", icon: Shield },
+  { name: "Suppliers", href: "/dashboard/procurement/suppliers", icon: ClipboardList },
+  { name: "Purchase Orders", href: "/dashboard/procurement/purchase-orders", icon: Boxes },
+  { name: "Goods Receipts", href: "/dashboard/procurement/goods-receipts", icon: ClipboardCheck },
   { name: "Reports", href: "/dashboard/reports", icon: BarChart3 },
   { name: "Import/Export", href: "/dashboard/import", icon: Upload },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
@@ -57,35 +66,15 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
   const [storeName, setStoreName] = useState<string>("")
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false)
+  const [authUser, setAuthUser] = useState<ReturnType<typeof getAuthUser>>(null)
 
   useEffect(() => {
     const loadProfile = async () => {
+      const user = getAuthUser()
+      setAuthUser(user)
+
       const token = localStorage.getItem("token")
       if (token) {
-        // Get super admin status from stored role
-        try {
-          const userRole = localStorage.getItem("userRole")
-          if (userRole) {
-            const roleData = JSON.parse(userRole)
-            setIsSuperAdmin(roleData.isSuperAdmin === true)
-          } else {
-            // Fallback: fetch from API if not stored
-            const roleRes = await fetch(`${API_BASE}/admin/me/role`, {
-              headers: { Authorization: `Bearer ${token}` },
-            })
-            if (roleRes.ok) {
-              const roleData = await roleRes.json()
-              const isSuperAdmin = roleData.isSuperAdmin === true
-              setIsSuperAdmin(isSuperAdmin)
-              // Store for future use
-              localStorage.setItem("userRole", JSON.stringify({ isSuperAdmin }))
-            }
-          }
-        } catch (e) {
-          // ignore
-        }
-
         // Get store name from profile
         try {
           const res = await fetch(`${API_BASE}/profile/me`, {
@@ -105,9 +94,10 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
 
   const handleLogout = () => {
     localStorage.removeItem("token")
+    localStorage.removeItem("userRole")
     localStorage.removeItem("signup_temp_data")
     if (onLinkClick) onLinkClick()
-    router.push("/")
+    router.push("/login")
   }
 
   return (
@@ -118,14 +108,14 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         </div>
         <div className="flex flex-col">
           <span className="text-sm font-semibold text-foreground">InventoryFlow</span>
-          <span className="text-xs text-muted-foreground truncate max-w-[160px]" title={storeName}>
+          <span className="text-xs text-muted-foreground truncate max-w-40" title={storeName}>
             {storeName || "Loading..."}
           </span>
         </div>
       </Link>
       <nav className="flex-1 space-y-1 p-4">
-        {/* Regular users see standard navigation, super admins see only admin navigation */}
-        {!isSuperAdmin && navigation.map((item) => {
+        {/* Regular users (non-admin) see standard store navigation */}
+        {authUser && (authUser.isStoreOwner || authUser.isStoreAdmin || authUser.isAdmin || authUser.isSuperAdmin || (!authUser.isAdmin && !authUser.isSuperAdmin)) && navigation.map((item) => {
           const isActive = pathname === item.href
           return (
             <Link
@@ -145,8 +135,8 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
           )
         })}
         
-        {/* Super Admin Only - Admin Options */}
-        {isSuperAdmin && (
+        {/* Super Admin / Admin Only - Admin Options (hidden from regular users) */}
+        {authUser && (authUser.isAdmin || authUser.isSuperAdmin) && (
           <>
             {adminNavigation.map((item) => {
               const isActive = item.href === "/dashboard/admin"
@@ -198,7 +188,7 @@ export function Sidebar() {
       {/* Mobile menu button */}
       <div className="fixed left-4 top-4 z-50 lg:hidden">
         <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
+          <SheetTrigger asChild suppressHydrationWarning>
             <Button asChild variant="outline" size="icon" className="bg-card">
               <span className="flex items-center gap-2">
                 <Menu className="h-5 w-5" />
@@ -206,7 +196,7 @@ export function Sidebar() {
               </span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-64 p-0 bg-background">
+          <SheetContent side="left" className="w-64 p-0 bg-background" suppressHydrationWarning>
             <div className="flex h-full flex-col">
               <SidebarContent onLinkClick={() => setOpen(false)} />
             </div>

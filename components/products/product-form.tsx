@@ -30,18 +30,48 @@ interface ProductFormProps {
 }
 
 const defaultFormData: Partial<Product> = {
-  sku: "",
   name: "",
+  sku: "",
   description: "",
-  categoryId: "",
-  costPrice: 0,
-  sellingPrice: 0,
-  quantity: 0,
+  categoryId: undefined,
   minStockLevel: 10,
   unit: "pcs",
   barcode: "",
-  expiryDate: null,
   isActive: true,
+}
+
+/**
+ * Generate SKU from product name, category, and unit
+ * Format: {CATEGORY_ABBR}-{NAME_FIRST_3}-{UNIT_ABBR}-{RANDOM}
+ * Example: ELEC-EAR-KG-7F2A
+ */
+function generateSKU(name: string, categoryId: number | undefined, unit: string, categories: Category[]): string {
+  if (!name || !categoryId || !unit) return ""
+  
+  // Get category abbreviation
+  const category = categories.find(c => c.id === categoryId)
+  const categoryAbbr = category?.name?.slice(0, 3).toUpperCase() || "GEN"
+  
+  // Get first 3 letters of name
+  const nameAbbr = name.slice(0, 3).toUpperCase()
+  
+  // Get unit abbreviation
+  const unitMap: Record<string, string> = {
+    "pcs": "PC",
+    "kg": "KG",
+    "g": "GM",
+    "l": "LT",
+    "ml": "ML",
+    "box": "BX",
+    "pack": "PK",
+    "license": "LC",
+  }
+  const unitAbbr = unitMap[unit] || unit.slice(0, 2).toUpperCase()
+  
+  // Generate random 2-char suffix
+  const randomSuffix = Math.random().toString(36).substring(2, 4).toUpperCase()
+  
+  return `${categoryAbbr}-${nameAbbr}-${unitAbbr}-${randomSuffix}`
 }
 
 export function ProductForm({ open, onOpenChange, product, categories, onSubmit, isSaving = false, onCategoriesChange }: ProductFormProps) {
@@ -54,17 +84,13 @@ export function ProductForm({ open, onOpenChange, product, categories, onSubmit,
       setLocalCategories(categories)
       if (product) {
         setFormData({
-          sku: product.sku,
           name: product.name,
+          sku: product.sku,
           description: product.description,
           categoryId: product.categoryId,
-          costPrice: product.costPrice,
-          sellingPrice: product.sellingPrice,
-          quantity: product.quantity,
           minStockLevel: product.minStockLevel,
           unit: product.unit,
           barcode: product.barcode || "",
-          expiryDate: product.expiryDate,
           isActive: product.isActive,
         })
       } else {
@@ -73,35 +99,157 @@ export function ProductForm({ open, onOpenChange, product, categories, onSubmit,
     }
   }, [product, open, categories])
 
+  // Auto-generate SKU when name, category, or unit changes
+  const handleNameChange = (value: string) => {
+    setFormData({ ...formData, name: value })
+    // Auto-generate SKU if it's a new product (no existing SKU)
+    if (!product && value && formData.categoryId && formData.unit) {
+      const newSku = generateSKU(value, formData.categoryId, formData.unit, localCategories)
+      setFormData(prev => ({ ...prev, sku: newSku }))
+    }
+  }
+
+  const handleCategoryChange = (value: string) => {
+    const categoryId = Number(value)
+    setFormData({ ...formData, categoryId })
+    // Auto-generate SKU if it's a new product
+    if (!product && formData.name && categoryId && formData.unit) {
+      const newSku = generateSKU(formData.name, categoryId, formData.unit, localCategories)
+      setFormData(prev => ({ ...prev, sku: newSku }))
+    }
+  }
+
+  const handleUnitChange = (value: string) => {
+    setFormData({ ...formData, unit: value })
+    // Auto-generate SKU if it's a new product
+    if (!product && formData.name && formData.categoryId && value) {
+      const newSku = generateSKU(formData.name, formData.categoryId, value, localCategories)
+      setFormData(prev => ({ ...prev, sku: newSku }))
+    }
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    // Validate that category is selected
+    if (!formData.categoryId) {
+      alert("Please select a category")
+      return
+    }
+    console.log("[FORM-SUBMIT] Form submitted with data:", formData)
     onSubmit(formData)
-    onOpenChange(false)
+    // Note: Do NOT close dialog here - let the parent component close it after async operation
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>{product ? "Edit Product" : "Add New Product"}</DialogTitle>
-          <DialogDescription>
-            {product
-              ? "Update the product details below."
-              : "Fill in the details to add a new product to your inventory."}
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>{product ? "Edit Product" : "Add New Product"}</DialogTitle>
+            <DialogDescription>
+              {product
+                ? "Update the product details below."
+                : "Fill in the details to add a new product to your inventory."}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="sku">SKU</Label>
+              <Label htmlFor="name">Product Name</Label>
               <Input
-                id="sku"
-                value={formData.sku || ""}
-                onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                placeholder="SKU-001"
+                id="name"
+                value={formData.name || ""}
+                onChange={(e) => handleNameChange(e.target.value)}
+                placeholder="Product name"
                 required
               />
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description || ""}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Product description"
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="category">Category <span className="text-destructive">*</span></Label>
+              <div className="flex items-center gap-2">
+                <Select
+                  value={formData.categoryId ? String(formData.categoryId) : ""}
+                  onValueChange={handleCategoryChange}
+                >
+                  <SelectTrigger className="text-foreground w-full">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {localCategories && localCategories.length > 0 ? (
+                      localCategories.map((category) => (
+                        <SelectItem key={category.id} value={String(category.id)}>
+                          {category.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <div className="px-2 py-1.5 text-sm text-muted-foreground">No categories available</div>
+                    )}
+                  </SelectContent>
+                </Select>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsCategoryDialogOpen(true)}
+                  title="Add Category"
+                  className="whitespace-nowrap shrink-0"
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Add
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="unit">Unit</Label>
+                <Select
+                  value={formData.unit || "pcs"}
+                  onValueChange={handleUnitChange}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select unit" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pcs">Pieces</SelectItem>
+                    <SelectItem value="kg">Kilograms</SelectItem>
+                    <SelectItem value="g">Grams</SelectItem>
+                    <SelectItem value="l">Liters</SelectItem>
+                    <SelectItem value="ml">Milliliters</SelectItem>
+                    <SelectItem value="box">Box</SelectItem>
+                    <SelectItem value="pack">Pack</SelectItem>
+                    <SelectItem value="license">License</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="minStockLevel">Min Stock Level</Label>
+                <Input
+                  id="minStockLevel"
+                  type="number"
+                  min="0"
+                  value={formData.minStockLevel === 10 ? "" : formData.minStockLevel || ""}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      minStockLevel: e.target.value ? Number.parseInt(e.target.value) : 10,
+                    })
+                  }
+                  placeholder="10"
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="barcode">Barcode</Label>
               <Input
@@ -111,168 +259,27 @@ export function ProductForm({ open, onOpenChange, product, categories, onSubmit,
                 placeholder="1234567890123"
               />
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="name">Product Name</Label>
-            <Input
-              id="name"
-              value={formData.name || ""}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Product name"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description || ""}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Product description"
-              rows={3}
-            />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="category">Category</Label>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsCategoryDialogOpen(true)}
-                  className="h-6 w-6 p-0"
-                  title="Add new category"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              <Select
-                value={String(formData.categoryId || "")}
-                onValueChange={(value) => setFormData({ ...formData, categoryId: value })}
-              >
-                <SelectTrigger className="text-foreground">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {localCategories && localCategories.length > 0 ? (
-                    localCategories.map((category) => (
-                      <SelectItem key={category.id} value={String(category.id)}>
-                        {category.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <div className="px-2 py-1.5 text-sm text-muted-foreground">No categories available</div>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="unit">Unit</Label>
-              <Select
-                value={formData.unit || "pcs"}
-                onValueChange={(value) => setFormData({ ...formData, unit: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select unit" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pcs">Pieces</SelectItem>
-                  <SelectItem value="kg">Kilograms</SelectItem>
-                  <SelectItem value="g">Grams</SelectItem>
-                  <SelectItem value="l">Liters</SelectItem>
-                  <SelectItem value="ml">Milliliters</SelectItem>
-                  <SelectItem value="box">Box</SelectItem>
-                  <SelectItem value="pack">Pack</SelectItem>
-                  <SelectItem value="license">License</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor="costPrice">Cost Price ($)</Label>
-              <Input
-                id="costPrice"
-                type="number"
-                min="0"
-                step="0.01"
-                value={formData.costPrice === 0 ? "" : formData.costPrice || ""}
-                onChange={(e) => setFormData({ ...formData, costPrice: e.target.value ? Number.parseFloat(e.target.value) : 0 })}
-                placeholder="0"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="sellingPrice">Selling Price ($)</Label>
-              <Input
-                id="sellingPrice"
-                type="number"
-                min="0"
-                step="0.01"
-                value={formData.sellingPrice === 0 ? "" : formData.sellingPrice || ""}
-                onChange={(e) => setFormData({ ...formData, sellingPrice: e.target.value ? Number.parseFloat(e.target.value) : 0 })}
-                placeholder="0"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="quantity">{product ? "Quantity" : "Initial Qty"}</Label>
-              <Input
-                id="quantity"
-                type="number"
-                min="0"
-                value={formData.quantity === 0 ? "" : formData.quantity || ""}
-                onChange={(e) => setFormData({ ...formData, quantity: e.target.value ? Number.parseInt(e.target.value) : 0 })}
-                placeholder="0"
-                required
-              />
-            </div>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="minStockLevel">Min Stock Level</Label>
-              <Input
-                id="minStockLevel"
-                type="number"
-                min="0"
-                value={formData.minStockLevel === 10 ? "" : formData.minStockLevel || ""}
-                onChange={(e) => setFormData({ ...formData, minStockLevel: e.target.value ? Number.parseInt(e.target.value) : 10 })}
-                placeholder="10"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="expiryDate">Expiry Date (Optional)</Label>
-              <Input
-                id="expiryDate"
-                type="date"
-                value={formData.expiryDate ? new Date(formData.expiryDate).toISOString().split("T")[0] : ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, expiryDate: e.target.value ? new Date(e.target.value) : null })
-                }
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSaving}>{isSaving ? "Saving..." : product ? "Update" : "Add"} Product</Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
 
-      <CategoryDialog
-        open={isCategoryDialogOpen}
-        onOpenChange={setIsCategoryDialogOpen}
-        onSuccess={(newCategory) => {
-          setLocalCategories([...localCategories, newCategory])
-          setFormData({ ...formData, categoryId: newCategory.id })
-          if (onCategoriesChange) {
-            onCategoriesChange([...localCategories, newCategory])
-          }
-        }}
-      />
-    </Dialog>
-  )
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSaving}>
+                {isSaving ? "Saving..." : product ? "Update" : "Add"} Product
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+        <CategoryDialog
+          open={isCategoryDialogOpen}
+          onOpenChange={setIsCategoryDialogOpen}
+          onSuccess={(newCategory) => {
+            const updated = [...localCategories, newCategory]
+            setLocalCategories(updated)
+            onCategoriesChange?.(updated)
+          }}
+        />
+      </Dialog>
+    )
 }
+

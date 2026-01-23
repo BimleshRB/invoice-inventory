@@ -48,7 +48,7 @@ GET /api/products/:id
 - Returns product with category
 
 POST /api/products
-- Body: { sku, name, description, categoryId, costPrice, sellingPrice, quantity, minStockLevel, unit, barcode, expiryDate, imageUrl, storeId }
+- Body: { sku, name, description, categoryId, minStockLevel, unit, barcode, imageUrl, storeId }
 - Auth: admin
 
 PUT /api/products/:id

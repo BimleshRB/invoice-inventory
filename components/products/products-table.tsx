@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -11,6 +11,7 @@ import type { Product, Category } from "@/lib/types"
 import Link from "next/link"
 import { MoreHorizontal, Pencil, Trash2, Search, Package } from "lucide-react"
 import { cn, formatCurrency } from "@/lib/utils"
+import { API_BASE } from "@/lib/api-client"
 
 interface ProductsTableProps {
   products: Product[]
@@ -21,14 +22,12 @@ interface ProductsTableProps {
 
 export function ProductsTable({ products, categories, onEdit, onDelete }: ProductsTableProps) {
   const [search, setSearch] = useState("")
-  const [categoryFilter, setCategoryFilter] = useState<string>("all")
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
       product.name.toLowerCase().includes(search.toLowerCase()) ||
       product.sku.toLowerCase().includes(search.toLowerCase())
-    const matchesCategory = categoryFilter === "all" || product.categoryId === Number(categoryFilter)
-    return matchesSearch && matchesCategory
+    return matchesSearch
   })
 
   return (
@@ -43,19 +42,6 @@ export function ProductsTable({ products, categories, onEdit, onDelete }: Produc
             className="pl-8"
           />
         </div>
-        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="Filter by category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            {categories.map((category) => (
-              <SelectItem key={category.id} value={String(category.id)}>
-                {category.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
       <div className="rounded-lg border border-border overflow-x-auto">
         <Table>
@@ -64,8 +50,6 @@ export function ProductsTable({ products, categories, onEdit, onDelete }: Produc
               <TableHead className="min-w-[200px]">Product</TableHead>
               <TableHead className="min-w-[100px]">SKU</TableHead>
               <TableHead className="min-w-[100px]">Category</TableHead>
-              <TableHead className="text-right min-w-[100px]">Cost</TableHead>
-              <TableHead className="text-right min-w-[100px]">Price</TableHead>
               <TableHead className="text-right min-w-[80px]">Stock</TableHead>
               <TableHead className="min-w-[100px]">Status</TableHead>
               <TableHead className="w-[50px]"></TableHead>
@@ -92,7 +76,7 @@ export function ProductsTable({ products, categories, onEdit, onDelete }: Produc
                       <div className="min-w-0">
                         <p className="min-w-0">
                           <Link
-                            href={`/products/${product.id}`}
+                            href={`/dashboard/products/${product.id}`}
                             className="font-medium text-foreground truncate hover:underline"
                           >
                             {product.name}
@@ -108,23 +92,21 @@ export function ProductsTable({ products, categories, onEdit, onDelete }: Produc
                       {categories.find((c) => c.id === product.categoryId)?.name || "---"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right">{formatCurrency(product.costPrice)}</TableCell>
-                  <TableCell className="text-right font-medium">{formatCurrency(product.sellingPrice)}</TableCell>
                   <TableCell className="text-right">
                     <span
                       className={cn(
                         "font-medium",
-                        product.quantity <= product.minStockLevel ? "text-destructive" : "text-foreground",
+                        (product.quantity ?? 0) <= product.minStockLevel ? "text-destructive" : "text-foreground",
                       )}
                     >
-                      {product.quantity}
+                      {product.quantity ?? 0}
                     </span>
                     <span className="text-muted-foreground"> / {product.minStockLevel}</span>
                   </TableCell>
                   <TableCell>
-                    {product.quantity <= 0 ? (
+                    {(product.quantity ?? 0) <= 0 ? (
                       <Badge variant="destructive">Out of Stock</Badge>
-                    ) : product.quantity <= product.minStockLevel ? (
+                    ) : (product.quantity ?? 0) <= product.minStockLevel ? (
                       <Badge className="bg-warning text-warning-foreground">Low Stock</Badge>
                     ) : (
                       <Badge className="bg-success text-success-foreground">In Stock</Badge>

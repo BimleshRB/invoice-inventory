@@ -287,7 +287,7 @@ export default function AdminsTab() {
                 <Label htmlFor="fullName">Full Name *</Label>
                 <Input
                   id="fullName"
-                  placeholder="John Doe"
+                  placeholder="Amit Sharma"
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                 />

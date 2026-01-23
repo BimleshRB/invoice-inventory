@@ -6,6 +6,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  output: 'standalone',
   async rewrites() {
     // During development proxy /api to backend set by NEXT_PUBLIC_API_URL
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';

@@ -31,6 +31,7 @@ const statusConfig = {
 export function InvoicesTable({ invoices, onView, onStatusChange, onDownload }: InvoicesTableProps) {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [typeFilter, setTypeFilter] = useState<string>("all")
 
   const safeFormatDate = (value: unknown) => {
     if (!value) return "-"
@@ -48,7 +49,8 @@ export function InvoicesTable({ invoices, onView, onStatusChange, onDownload }: 
       (invoice.invoiceNumber || "").toLowerCase().includes(search.toLowerCase()) ||
       (invoice.customer?.name || "").toLowerCase().includes(search.toLowerCase())
     const matchesStatus = statusFilter === "all" || invoice.status === statusFilter
-    return matchesSearch && matchesStatus
+    const matchesType = typeFilter === "all" || (invoice as any).type === typeFilter
+    return matchesSearch && matchesStatus && matchesType
   })
 
   return (
@@ -63,19 +65,31 @@ export function InvoicesTable({ invoices, onView, onStatusChange, onDownload }: 
             className="pl-8"
           />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="draft">Draft</SelectItem>
-            <SelectItem value="sent">Sent</SelectItem>
-            <SelectItem value="paid">Paid</SelectItem>
-            <SelectItem value="overdue">Overdue</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue placeholder="Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="out">Outgoing</SelectItem>
+              <SelectItem value="in">Intake</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full sm:w-48">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="sent">Sent</SelectItem>
+              <SelectItem value="paid">Paid</SelectItem>
+              <SelectItem value="overdue">Overdue</SelectItem>
+              <SelectItem value="cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
       <div className="rounded-lg border border-border overflow-x-auto">
         <Table>
@@ -83,6 +97,7 @@ export function InvoicesTable({ invoices, onView, onStatusChange, onDownload }: 
             <TableRow>
               <TableHead className="min-w-30">Invoice</TableHead>
               <TableHead className="min-w-[150px]">Customer</TableHead>
+              <TableHead className="min-w-[90px]">Type</TableHead>
               <TableHead className="min-w-[100px]">Date</TableHead>
               <TableHead className="min-w-[100px]">Due Date</TableHead>
               <TableHead className="text-right min-w-[120px]">Amount</TableHead>
@@ -93,7 +108,7 @@ export function InvoicesTable({ invoices, onView, onStatusChange, onDownload }: 
           <TableBody>
             {filteredInvoices.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell colSpan={8} className="h-24 text-center">
                   <div className="flex flex-col items-center gap-2">
                     <FileText className="h-8 w-8 text-muted-foreground" />
                     <p className="text-sm text-muted-foreground">No invoices found</p>
@@ -120,6 +135,7 @@ export function InvoicesTable({ invoices, onView, onStatusChange, onDownload }: 
                         <p className="text-xs text-muted-foreground truncate">{invoice.customer?.email}</p>
                       </div>
                     </TableCell>
+                    <TableCell className="text-muted-foreground capitalize">{((invoice as any).type || 'out') === 'out' ? 'Outgoing' : 'Intake'}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {safeFormatDate(invoice.createdAt)}
                     </TableCell>

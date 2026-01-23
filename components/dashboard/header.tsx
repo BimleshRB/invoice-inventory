@@ -17,11 +17,9 @@ export function Header({ title, description }: HeaderProps) {
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 lg:px-6">
       <Sheet>
         <SheetTrigger asChild>
-          <Button asChild variant="ghost" size="icon" className="lg:hidden">
-            <span className="flex items-center gap-2">
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle menu</span>
-            </span>
+          <Button variant="ghost" size="icon" className="lg:hidden">
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle menu</span>
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-64 p-0">

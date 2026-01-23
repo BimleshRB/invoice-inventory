@@ -25,10 +25,13 @@ import {
 import { dashboardApi, profileApi } from "@/lib/api-client"
 import { dataStore } from "@/lib/store"
 import { formatCurrency } from "@/lib/utils"
+import { useAuthGuard, getAuthUser } from "@/hooks/use-auth-guard"
 import type { ActivityLog } from "@/lib/types"
 
 export default function DashboardPage() {
   const router = useRouter()
+  useAuthGuard()
+
   const [stats, setStats] = useState({
     totalProducts: 0,
     lowStockProducts: 0,
@@ -47,18 +50,11 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Check if user is super admin and redirect
-    const userRole = localStorage.getItem("userRole")
-    if (userRole) {
-      try {
-        const roleData = JSON.parse(userRole)
-        if (roleData.isSuperAdmin === true) {
-          router.push("/dashboard/admin")
-          return
-        }
-      } catch (e) {
-        // ignore
-      }
+    // Check if user is admin/super admin and redirect to admin dashboard
+    const authUser = getAuthUser()
+    if (authUser && (authUser.isAdmin || authUser.isSuperAdmin)) {
+      router.push("/dashboard/admin")
+      return
     }
     loadDashboardData()
   }, [])

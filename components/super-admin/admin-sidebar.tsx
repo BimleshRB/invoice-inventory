@@ -85,7 +85,7 @@ function AdminSidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
   return (
     <>
       <Link
-        href="/dashboard/admin"
+        href="/"
         onClick={(e) => handleNavClick(e, "/dashboard/admin")}
         className="flex h-16 items-center gap-3 border-b border-border px-6 hover:bg-muted/70 dark:hover:bg-muted/60 transition-colors bg-card/80 backdrop-blur"
       >
@@ -146,7 +146,7 @@ export function AdminSidebar() {
       {/* Mobile menu button */}
       <div className="fixed left-4 top-4 z-50 lg:hidden">
         <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
+          <SheetTrigger asChild suppressHydrationWarning>
             <Button asChild variant="outline" size="icon" className="bg-card">
               <span className="flex items-center gap-2">
                 <Menu className="h-5 w-5" />
@@ -154,7 +154,7 @@ export function AdminSidebar() {
               </span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-64 p-0 bg-background">
+          <SheetContent side="left" className="w-64 p-0 bg-background" suppressHydrationWarning>
             <div className="flex h-full flex-col">
               <AdminSidebarContent onLinkClick={() => setOpen(false)} />
             </div>

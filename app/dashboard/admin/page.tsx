@@ -11,9 +11,12 @@ import EmailsTab from "@/components/super-admin/emails-tab"
 import TestimonialsTab from "@/components/super-admin/testimonials-tab"
 import ContactsTab from "@/components/super-admin/contacts-tab"
 import { Shield, AlertCircle } from "lucide-react"
+import { useAuthGuard, getAuthUser } from "@/hooks/use-auth-guard"
 
 export default function SuperAdminDashboard() {
   const router = useRouter()
+  useAuthGuard()
+
   const [isAuthorized, setIsAuthorized] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
@@ -37,22 +40,15 @@ export default function SuperAdminDashboard() {
 
   const checkAuthorization = async () => {
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
+      const authUser = getAuthUser()
+      if (!authUser) {
         router.push("/login")
         return
       }
 
-      // Check role from stored data
-      const userRole = localStorage.getItem("userRole")
-      if (userRole) {
-        if (userRole === "ROLE_SUPER_ADMIN" || userRole === "ROLE_ADMIN") {
-          setIsAuthorized(true)
-        } else {
-          setError("You don't have permission to access this page. Only Super Admins and Admins can access the admin dashboard.")
-          setIsLoading(false)
-          return
-        }
+      // Check if user is admin or super admin
+      if (authUser.isSuperAdmin || authUser.isAdmin) {
+        setIsAuthorized(true)
       } else {
         setError("You don't have permission to access this page. Only Super Admins and Admins can access the admin dashboard.")
         setIsLoading(false)

@@ -91,7 +91,7 @@ SKU-001,Product Name,Description,Electronics,10.00,25.00,100,10,pcs,1234567890,2
 ### Customers
 \`\`\`csv
 name,email,phone,address
-John Smith,john@example.com,+1 555-123-4567,"123 Main St, City, ST 12345"
+Rajesh Kumar,rajesh@example.in,+91 98765-12345,"12 MG Road, Bengaluru, KA 560001"
 \`\`\`
 
 ## API Reference
