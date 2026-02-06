@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator"
 import { format } from "date-fns"
 import { formatCurrency } from "@/lib/utils"
 import { Package, Calendar, DollarSign, TrendingUp, FileText, Clock } from "lucide-react"
+import { API_BASE } from "@/lib/api-client"
 
 interface BatchData {
   id: string
@@ -42,8 +43,7 @@ export default function BatchDetailsPage() {
       setLoading(true)
       try {
         const token = localStorage.getItem("token")
-        const base = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8080"
-        const res = await fetch(`${base}/api/products/batches/batch-number/${encodeURIComponent(batchNumber)}`, {
+        const res = await fetch(`${API_BASE}/products/batches/batch-number/${encodeURIComponent(batchNumber)}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (res.ok) {

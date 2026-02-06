@@ -1,9 +1,8 @@
 /* Simple API client wrapper for frontend to communicate with backend
-   Uses NEXT_PUBLIC_API_URL and automatically attaches Authorization header when token available. */
+   Uses centralized API_BASE from api-client.ts for consistent configuration. */
 
 import type { User, UserRole, CurrentUserInfo } from './types';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
+import { API_BASE } from './api-client';
 
 export async function apiFetch(path: string, options: RequestInit = {}) {
   const headers: Record<string,string> = {

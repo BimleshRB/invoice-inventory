@@ -66,7 +66,6 @@ export default function DashboardPage() {
   const loadDashboardData = async () => {
     setIsLoading(true)
     console.log('[Dashboard] Starting to load dashboard data...')
-    console.log('[Dashboard] API_BASE from api-client:', 'http://localhost:8080/api')
     try {
       // Load stats
       console.log('[Dashboard] Fetching stats...')
