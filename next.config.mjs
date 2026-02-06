@@ -9,7 +9,10 @@ const nextConfig = {
   output: 'standalone',
   async rewrites() {
     // During development proxy /api to backend set by NEXT_PUBLIC_API_URL
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (!apiUrl) {
+      return [];
+    }
     return [
       {
         source: '/api/:path*',

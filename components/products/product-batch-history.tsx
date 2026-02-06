@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Loader2, Package, Calendar } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { formatCurrency } from "@/lib/utils"
+import { API_BASE } from "@/lib/api-client"
 import { format } from "date-fns"
 
 interface ProductBatchHistoryProps {
@@ -42,12 +43,9 @@ export function ProductBatchHistory({ productId }: ProductBatchHistoryProps) {
         return
       }
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8080/api"}/products/batches/product/${productId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      )
+      const res = await fetch(`${API_BASE}/products/batches/product/${productId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
       if (res.ok) {
         const data = await res.json()
