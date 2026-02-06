@@ -29,7 +29,7 @@ export default function ProductPage({ params }: Props) {
           <strong>Price:</strong> {formatCurrency(product.sellingPrice)}
         </p>
         <p>
-          <strong>Stock:</strong> {product.quantity} {product.unit}
+          <strong>Unit:</strong> {product.unit}
         </p>
         {product.expiryDate && (
           <p>

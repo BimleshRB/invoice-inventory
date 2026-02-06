@@ -27,9 +27,14 @@ export interface Product {
   categoryId: string | number
   category?: Category
   sellingPrice?: number
+  availableQuantity?: number // DEPRECATED: Use GET /api/products/{id}/stock instead
+  reservedQuantity?: number
+  isDeleted?: boolean
   minStockLevel: number
   unit: string
   barcode: string | null
+  manufacturingDate?: string | null
+  expiryDate?: string | null
   imageUrl: string | null
   storeId: string
   isActive: boolean
@@ -44,6 +49,7 @@ export interface Customer {
   phone: string
   address: string
   storeId: string
+  isDeleted?: boolean
   createdAt: Date
 }
 
@@ -88,12 +94,23 @@ export interface StockMovement {
   productId: string
   product?: Product
   type: "in" | "out" | "adjustment"
+  movementType?: "in" | "out" | "adjustment"
   quantity: number
   reason: string
   referenceId: string | null
   referenceType: "invoice" | "purchase" | "manual" | null
   storeId: string
   createdAt: Date
+}
+
+export interface PriceHistory {
+  id: string
+  productId: string
+  oldPrice: number | null
+  newPrice: number | null
+  reason?: string | null
+  changedBy?: string | number | null
+  changedAt: string
 }
 
 export interface ActivityLog {
@@ -145,4 +162,45 @@ export interface CurrentUserInfo {
   isSuperAdmin: boolean
   isStoreOwner: boolean
   isStoreAdmin: boolean
+}
+
+// ============================================================================
+// INVOICE RETURNS TYPES
+// ============================================================================
+
+export interface InvoiceReturnItem {
+  id?: string
+  invoiceReturnId?: string
+  originalInvoiceItemId: string
+  productId: string
+  product?: Product
+  batchId?: string
+  quantityReturned: number
+  quantityAccepted?: number
+  quantityRejected?: number
+  unitPrice: number
+  lineTotal?: number
+  qcNotes?: string
+  itemStatus?: "PENDING" | "APPROVED" | "REJECTED"
+}
+
+export interface InvoiceReturn {
+  id?: string
+  returnNumber?: string
+  originalInvoiceId: string
+  originalInvoice?: Invoice
+  storeId?: string
+  returnType: "SALE_RETURN" | "PURCHASE_RETURN"
+  status: "PENDING" | "APPROVED" | "REJECTED" | "COMPLETED" | "PARTIAL"
+  reason?: string
+  totalQuantity?: number
+  subtotalAmount?: number
+  taxAmount?: number
+  totalAmount?: number
+  approvedBy?: string
+  approvedAt?: string
+  createdBy?: string
+  items: InvoiceReturnItem[]
+  createdAt?: string
+  updatedAt?: string
 }

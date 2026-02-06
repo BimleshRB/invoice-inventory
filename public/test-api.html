@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard API Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .result { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffe6e6; color: #cc0000; }
+        .success { background: #e6f7e6; color: #006600; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+        input { width: 100%; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Dashboard API Test Tool</h1>
+    
+    <div>
+        <h3>Step 1: Get your token</h3>
+        <p>Open browser console (F12) and run: <code>localStorage.getItem('token')</code></p>
+        <input type="text" id="token" placeholder="Paste your JWT token here">
+    </h3>
+    
+    <div>
+        <h3>Step 2: Test API</h3>
+        <button onclick="testStats()">Test /api/dashboard/stats</button>
+        <button onclick="testProducts()">Test /api/products</button>
+        <button onclick="testProfile()">Test /api/profile/me</button>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+        
+        function log(message, isError = false) {
+            const div = document.createElement('div');
+            div.className = 'result ' + (isError ? 'error' : 'success');
+            div.innerHTML = '<strong>' + new Date().toLocaleTimeString() + '</strong><br>' + message;
+            document.getElementById('results').insertBefore(div, document.getElementById('results').firstChild);
+        }
+        
+        async function apiCall(endpoint) {
+            const token = document.getElementById('token').value.trim();
+            if (!token) {
+                log('Please enter a token first!', true);
+                return null;
+            }
+            
+            try {
+                log(`Calling ${endpoint}...`);
+                const response = await fetch(API_BASE + endpoint, {
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    log(`Error ${response.status}: ${JSON.stringify(data, null, 2)}`, true);
+                    return null;
+                }
+                
+                log(`Success! Response:<br><pre>${JSON.stringify(data, null, 2)}</pre>`);
+                return data;
+            } catch (error) {
+                log(`Network error: ${error.message}`, true);
+                return null;
+            }
+        }
+        
+        async function testStats() {
+            const data = await apiCall('/dashboard/stats');
+            if (data) {
+                const summary = `
+                    📊 Dashboard Stats:
+                    • Total Products: ${data.totalProducts}
+                    • Low Stock: ${data.lowStockProducts}
+                    • Total Invoices: ${data.totalInvoices}
+                    • Total Revenue: ₹${data.totalRevenue}
+                    • Inventory Value: ₹${data.inventoryValue}
+                `;
+                log(summary.replace(/\n/g, '<br>'));
+                
+                if (data.totalProducts === 0) {
+                    log('⚠️ Total Products is 0 - Check if user storeId matches product store_id in database', true);
+                }
+            }
+        }
+        
+        async function testProducts() {
+            const data = await apiCall('/products?page=0&size=10');
+            if (data && data.content) {
+                log(`Found ${data.content.length} products out of ${data.totalElements} total`);
+            }
+        }
+        
+        async function testProfile() {
+            const data = await apiCall('/profile/me');
+            if (data) {
+                log(`User: ${data.username}<br>Store: ${data.storeName} (ID: ${data.storeId})<br>Subdomain: ${data.storeSubdomain || 'N/A'}`);
+            }
+        }
+        
+        // Auto-fill token if available
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                document.getElementById('token').value = token;
+                log('Token auto-filled from localStorage');
+            }
+        });
+    </script>
+</body>
+</html>

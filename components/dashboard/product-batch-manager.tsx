@@ -394,8 +394,9 @@ export function ProductBatchManager({
                 id="quantity"
                 type="number"
                 min="1"
-                value={formData.quantity}
-                onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
+                placeholder="Enter quantity"
+                value={formData.quantity || ""}
+                onChange={(e) => setFormData({ ...formData, quantity: e.target.value ? parseInt(e.target.value) : "" })}
               />
             </div>
 
@@ -416,8 +417,9 @@ export function ProductBatchManager({
                 type="number"
                 step="0.01"
                 min="0"
-                value={formData.costPrice}
-                onChange={(e) => setFormData({ ...formData, costPrice: parseFloat(e.target.value) || 0 })}
+                placeholder="Enter cost price"
+                value={formData.costPrice || ""}
+                onChange={(e) => setFormData({ ...formData, costPrice: e.target.value ? parseFloat(e.target.value) : "" })}
               />
             </div>
           </div>
@@ -458,8 +460,9 @@ export function ProductBatchManager({
                 id="editQuantity"
                 type="number"
                 min="1"
-                value={formData.quantity}
-                onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
+                placeholder="Enter quantity"
+                value={formData.quantity || ""}
+                onChange={(e) => setFormData({ ...formData, quantity: e.target.value ? parseInt(e.target.value) : "" })}
               />
             </div>
 
@@ -480,8 +483,9 @@ export function ProductBatchManager({
                 type="number"
                 step="0.01"
                 min="0"
-                value={formData.costPrice}
-                onChange={(e) => setFormData({ ...formData, costPrice: parseFloat(e.target.value) || 0 })}
+                placeholder="Enter cost price"
+                value={formData.costPrice || ""}
+                onChange={(e) => setFormData({ ...formData, costPrice: e.target.value ? parseFloat(e.target.value) : "" })}
               />
             </div>
           </div>

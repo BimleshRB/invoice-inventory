@@ -17,6 +17,22 @@ const typeConfig = {
   in: { label: "Stock In", className: "bg-success text-success-foreground", icon: ArrowUp },
   out: { label: "Stock Out", className: "bg-destructive text-destructive-foreground", icon: ArrowDown },
   adjustment: { label: "Adjustment", className: "bg-primary/10 text-primary", icon: RotateCcw },
+  return: { label: "Sale Return", className: "bg-yellow-500 text-white", icon: RotateCcw },
+  purchase_return: { label: "Purchase Return", className: "bg-orange-500 text-white", icon: RotateCcw },
+}
+
+const getStockType = (movement: StockMovement) => {
+  // Check for return types first (from movementType field)
+  const movementType = (movement.movementType || "").toLowerCase()
+  if (movementType.includes("sale return")) return "return"
+  if (movementType.includes("purchase return")) return "purchase_return"
+  
+  // Normalize other types
+  const t = (movement.type || movement.movementType || "").toLowerCase()
+  if (t === "purchase" || t.includes("purchase receipt")) return "in"
+  if (t === "sale" || t.includes("sale shipment")) return "out"
+  if (t === "in" || t === "out" || t === "adjustment") return t
+  return "in" // fallback for legacy
 }
 
 export function StockTable({ movements }: StockTableProps) {
@@ -28,7 +44,7 @@ export function StockTable({ movements }: StockTableProps) {
       movement.product?.name.toLowerCase().includes(search.toLowerCase()) ||
       movement.reason.toLowerCase().includes(search.toLowerCase())
     // Handle both 'type' (normalized) and 'movementType' (from backend) fields
-    const movementType = movement.type || movement.movementType
+    const movementType = getStockType(movement)
     const matchesType = typeFilter === "all" || movementType === typeFilter
     return matchesSearch && matchesType
   })
@@ -80,12 +96,12 @@ export function StockTable({ movements }: StockTableProps) {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredMovements.map((movement) => {
-                const movementType = movement.type || movement.movementType
+              filteredMovements.map((movement, index) => {
+                const movementType = getStockType(movement)
                 const type = typeConfig[movementType as keyof typeof typeConfig] || typeConfig.in
                 const TypeIcon = type.icon
                 return (
-                  <TableRow key={movement.id}>
+                  <TableRow key={`${movement.id}-${movement.referenceType || 'manual'}-${index}`}>
                     <TableCell>
                       <p className="font-medium text-foreground">{movement.product?.name || "Unknown"}</p>
                       <p className="text-xs text-muted-foreground">{movement.product?.sku}</p>
@@ -99,14 +115,14 @@ export function StockTable({ movements }: StockTableProps) {
                     <TableCell className="text-right">
                       <span
                         className={
-                          movementType === "in"
+                          movementType === "in" || movementType === "return" || movementType === "purchase_return"
                             ? "text-success font-medium"
                             : movementType === "out"
                               ? "text-destructive font-medium"
                               : "text-foreground font-medium"
                         }
                       >
-                        {movementType === "in" ? "+" : movementType === "out" ? "-" : ""}
+                        {movementType === "in" || movementType === "return" || movementType === "purchase_return" ? "+" : movementType === "out" ? "-" : ""}
                         {movement.quantity}
                       </span>
                     </TableCell>
@@ -128,6 +144,29 @@ export function StockTable({ movements }: StockTableProps) {
           </TableBody>
         </Table>
       </div>
+    </div>
+  )
+}
+
+// Add this export for a summary widget
+export function StockMovementsSummary({ movements }: { movements: StockMovement[] }) {
+  if (!movements || movements.length === 0) return null
+  return (
+    <div className="flex flex-col gap-2">
+      {movements.slice(0, 5).map((movement, index) => {
+        const movementType = getStockType(movement)
+        const type = typeConfig[movementType as keyof typeof typeConfig] || typeConfig.in
+        const TypeIcon = type.icon
+        return (
+          <div key={`summary-${movement.id}-${index}`} className="flex items-center gap-2 text-sm">
+            <TypeIcon className={`h-4 w-4 ${type.className} rounded-full p-0.5`} />
+            <span className="font-medium text-foreground truncate max-w-[120px]">{movement.product?.name || "Unknown"}</span>
+            <span className={`ml-auto font-mono ${movementType === "in" || movementType === "return" || movementType === "purchase_return" ? "text-success" : movementType === "out" ? "text-destructive" : "text-foreground"}`}>
+              {movementType === "in" || movementType === "return" || movementType === "purchase_return" ? "+" : movementType === "out" ? "-" : ""}{movement.quantity}
+            </span>
+          </div>
+        )
+      })}
     </div>
   )
 }

@@ -11,6 +11,7 @@ import { ArrowLeft, Loader2, Package } from "lucide-react"
 import type { Product } from "@/lib/types"
 import { useToast } from "@/hooks/use-toast"
 import { API_BASE } from "@/lib/api-client"
+import { useProductStock } from "@/hooks/use-product-stock"
 
 export default function ProductDetailPage() {
   const params = useParams()
@@ -21,6 +22,11 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [storeId, setStoreId] = useState<number | null>(null)
+
+  // Use ERP ledger API for stock
+  const { currentStock, batches, loading: stockLoading, refetch: refetchStock } = useProductStock(
+    product?.id ? Number(product.id) : null
+  )
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -70,7 +76,7 @@ export default function ProductDetailPage() {
   }, [productId, router, toast])
 
   const handleBatchesUpdated = async () => {
-    // Reload product to get updated quantity
+    // Reload product and refetch stock from ledger
     try {
       const token = localStorage.getItem("token")
       const response = await fetch(`${API_BASE}/products/${productId}`, {
@@ -82,6 +88,8 @@ export default function ProductDetailPage() {
       if (response.ok) {
         const data = await response.json()
         setProduct(data)
+        // Refetch stock from ledger
+        await refetchStock()
       }
     } catch (error) {
       console.error("Failed to reload product:", error)
@@ -151,12 +159,24 @@ export default function ProductDetailPage() {
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 <div>
-                  <p className="text-xs text-muted-foreground">Total Stock</p>
-                  <p className="text-lg font-semibold">{product.quantity ?? 0}</p>
+                  <p className="text-xs text-muted-foreground">Total Stock (from Ledger)</p>
+                  {stockLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <p className="text-lg font-semibold">{currentStock}</p>
+                  )}
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Min Stock</p>
                   <p className="text-lg font-semibold">{product.minStockLevel || 0}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Batches</p>
+                  {stockLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <p className="text-lg font-semibold">{batches.length}</p>
+                  )}
                 </div>
               </div>
 

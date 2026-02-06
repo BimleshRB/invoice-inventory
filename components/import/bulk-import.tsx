@@ -211,7 +211,6 @@ Priya Patel,priya@example.com,+91 87654 32109,"456 Anna Salai, Chennai, TN 60000
                         <TableHead>SKU</TableHead>
                         <TableHead>Name</TableHead>
                         <TableHead>Price</TableHead>
-                        <TableHead>Qty</TableHead>
                         <TableHead>Status</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -221,7 +220,6 @@ Priya Patel,priya@example.com,+91 87654 32109,"456 Anna Salai, Chennai, TN 60000
                           <TableCell className="font-mono text-sm">{product.sku}</TableCell>
                           <TableCell>{product.name || "-"}</TableCell>
                           <TableCell>{formatCurrency(product.sellingPrice || 0)}</TableCell>
-                          <TableCell>{product.quantity}</TableCell>
                           <TableCell>
                             {product.name && product.sellingPrice ? (
                               <Badge className="bg-success text-success-foreground">Valid</Badge>

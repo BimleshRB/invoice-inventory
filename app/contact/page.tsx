@@ -1,7 +1,7 @@
 "use client"
 
-import type React from "react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
+import Link from "next/link"
 import { LandingHeader } from "@/components/landing/header"
 import { LandingFooter } from "@/components/landing/footer"
 import { Button } from "@/components/ui/button"
@@ -10,164 +10,179 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Mail, Phone, MapPin, MessageSquare, Clock, Loader2, CheckCircle, X, Building2, Headphones } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import {
+  Mail,
+  Phone,
+  MapPin,
+  MessageCircle,
+  MessageSquare,
+  Clock,
+  Building2,
+  CheckCircle,
+  ArrowRight,
+  Loader2,
+  X,
+} from "lucide-react"
 
-const STORAGE_KEY = "contact_form"
+const contactMethods = [
+  {
+    icon: Mail,
+    title: "Email",
+    description: "Send us an email anytime",
+    primary: "support@inventoryflow.com",
+    secondary: "Response in 24 hours",
+  },
+  {
+    icon: Phone,
+    title: "Phone",
+    description: "Call our support team",
+    primary: "+1 (555) 123-4567",
+    secondary: "Mon-Fri, 9 AM - 6 PM EST",
+  },
+  {
+    icon: MessageCircle,
+    title: "Live Chat",
+    description: "Chat with us in real-time",
+    primary: "Available 24/7",
+    secondary: "Average response: 2 mins",
+  },
+  {
+    icon: MapPin,
+    title: "Address",
+    description: "Visit our office",
+    primary: "San Francisco, CA",
+    secondary: "By appointment",
+  },
+]
 
 export default function ContactPage() {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     subject: "",
     message: "",
   })
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Load form data from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      try {
-        setFormData(JSON.parse(stored))
-      } catch {
-        // Invalid JSON
-      }
-    }
-  }, [])
-
-  // Save form data to localStorage
-  useEffect(() => {
-    if (formData.name || formData.email || formData.message) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(formData))
-    }
-  }, [formData])
-
-  const clearForm = () => {
-    setFormData({ name: "", email: "", subject: "", message: "" })
-    localStorage.removeItem(STORAGE_KEY)
-  }
+  const hasFormData =
+    formData.name.trim() !== "" ||
+    formData.email.trim() !== "" ||
+    formData.subject !== "" ||
+    formData.message.trim() !== ""
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+
+    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1500))
-    localStorage.removeItem(STORAGE_KEY) // Clear on success
+
+    // Save to localStorage
+    localStorage.setItem("contactFormData", JSON.stringify(formData))
+
     setIsSubmitting(false)
     setIsSubmitted(true)
+
+    // Reset after 3 seconds for demo
+    setTimeout(() => {
+      setIsSubmitted(false)
+      setFormData({ name: "", email: "", subject: "", message: "" })
+      localStorage.removeItem("contactFormData")
+    }, 3000)
   }
 
-  const hasFormData = formData.name || formData.email || formData.message
-
-  const contactMethods = [
-    {
-      icon: Mail,
-      title: "Email Us",
-      description: "Our team typically responds within 24 hours",
-      primary: "support@inventoryflow.app",
-      secondary: "sales@inventoryflow.app",
-    },
-    {
-      icon: Phone,
-      title: "Call Us",
-      description: "Mon-Fri from 9am to 6pm EST",
-      primary: "+1 (555) 123-4567",
-      secondary: "Toll-free: 1-800-INV-FLOW",
-    },
-    {
-      icon: MapPin,
-      title: "Visit Us",
-      description: "Come say hello at our office",
-      primary: "123 Business Avenue, Suite 100",
-      secondary: "San Francisco, CA 94107",
-    },
-    {
-      icon: Headphones,
-      title: "Live Chat",
-      description: "Available 24/7 for urgent issues",
-      primary: "Start a conversation",
-      secondary: "Average response: 2 minutes",
-    },
-  ]
+  const clearForm = () => {
+    setFormData({ name: "", email: "", subject: "", message: "" })
+    localStorage.removeItem("contactFormData")
+  }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background via-background to-muted/30">
       <LandingHeader />
 
-      <main className="flex-1 pt-24 pb-16 px-4">
+      <main className="flex-1 pt-16 pb-12 px-4">
         <div className="container mx-auto max-w-7xl">
           {/* Header */}
-          <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Get in Touch</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Have a question or need help? Our team is here to assist you. Reach out and we&apos;ll respond as soon as
-              possible.
+          <div className="text-center mb-12">
+            <Badge variant="secondary" className="mb-3 bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
+              💬 Get in Touch
+            </Badge>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground mb-4 text-balance">
+              Contact Us
+            </h1>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
+              Have a question? Reach out and we'll respond within 24 hours.
             </p>
           </div>
 
           {/* Contact Methods Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
             {contactMethods.map((method, i) => (
-              <Card key={i} className="hover:border-primary/50 transition-colors">
-                <CardContent className="p-6">
-                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+              <Card key={i} className="group border-2 border-border/60 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
+                <CardContent className="p-5">
+                  <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-3 group-hover:from-primary/30 group-hover:to-primary/20 transition-colors">
                     <method.icon className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="font-semibold text-foreground mb-1">{method.title}</h3>
-                  <p className="text-xs text-muted-foreground mb-3">{method.description}</p>
-                  <p className="text-sm font-medium text-foreground">{method.primary}</p>
+                  <h3 className="font-bold text-base text-foreground mb-1">{method.title}</h3>
+                  <p className="text-xs text-muted-foreground mb-2">{method.description}</p>
+                  <p className="text-sm font-semibold text-foreground">{method.primary}</p>
                   <p className="text-xs text-muted-foreground">{method.secondary}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          <div className="grid lg:grid-cols-5 gap-8">
+          <div className="grid lg:grid-cols-5 gap-6">
             {/* Contact Form */}
             <div className="lg:col-span-3">
-              <Card className="border-2">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl">
-                    <MessageSquare className="h-5 w-5 text-primary" />
-                    Send us a message
+              <Card className="border-2 border-border/60">
+                <CardHeader className="border-b border-border/50 pb-4">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
+                      <MessageSquare className="h-5 w-5 text-primary" />
+                    </div>
+                    Send us a Message
                   </CardTitle>
-                  <CardDescription>Fill out the form below and we&apos;ll get back to you shortly.</CardDescription>
+                  <CardDescription className="text-sm">Fill out the form and we'll respond within 24 hours</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-6">
                   {isSubmitted ? (
-                    <div className="text-center py-12">
-                      <div className="h-16 w-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
+                    <div className="text-center py-10">
+                      <div className="h-16 w-16 rounded-full bg-gradient-to-br from-success/20 to-success/10 flex items-center justify-center mx-auto mb-4">
                         <CheckCircle className="h-8 w-8 text-success" />
                       </div>
-                      <h3 className="text-xl font-semibold text-foreground mb-2">Message Sent!</h3>
-                      <p className="text-muted-foreground mb-6">
-                        Thank you for contacting us. We&apos;ll get back to you within 24 hours.
+                      <h3 className="text-lg font-bold text-foreground mb-2">Message Sent!</h3>
+                      <p className="text-muted-foreground mb-5 text-sm">
+                        Thank you for contacting us. We'll respond within 24 hours.
                       </p>
                       <Button
                         onClick={() => {
                           setIsSubmitted(false)
                           setFormData({ name: "", email: "", subject: "", message: "" })
                         }}
+                        size="sm"
                       >
                         Send Another Message
                       </Button>
                     </div>
                   ) : (
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                    <form onSubmit={handleSubmit} className="space-y-4">
                       <div className="grid sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="name">Your Name</Label>
+                          <Label htmlFor="name" className="text-sm font-semibold">Name</Label>
                           <Input
                             id="name"
                             placeholder="John Doe"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             required
-                            className="h-11"
+                            className="h-10 border-border/60 text-sm"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="email">Email Address</Label>
+                          <Label htmlFor="email" className="text-sm font-semibold">Email</Label>
                           <Input
                             id="email"
                             type="email"
@@ -175,17 +190,17 @@ export default function ContactPage() {
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             required
-                            className="h-11"
+                            className="h-10 border-border/60 text-sm"
                           />
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="subject">Subject</Label>
+                        <Label htmlFor="subject" className="text-sm font-semibold">Subject</Label>
                         <Select
                           value={formData.subject}
                           onValueChange={(value) => setFormData({ ...formData, subject: value })}
                         >
-                          <SelectTrigger className="h-11">
+                          <SelectTrigger className="h-10 border-border/60 text-sm">
                             <SelectValue placeholder="Select a subject" />
                           </SelectTrigger>
                           <SelectContent>
@@ -200,7 +215,7 @@ export default function ContactPage() {
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="message">Message</Label>
+                          <Label htmlFor="message" className="text-sm font-semibold">Message</Label>
                           {hasFormData && (
                             <Button
                               type="button"
@@ -210,27 +225,31 @@ export default function ContactPage() {
                               className="text-xs text-muted-foreground hover:text-foreground h-auto p-1"
                             >
                               <X className="h-3 w-3 mr-1" />
-                              Clear form
+                              Clear
                             </Button>
                           )}
                         </div>
                         <Textarea
                           id="message"
                           placeholder="Tell us how we can help..."
-                          rows={6}
+                          rows={5}
                           value={formData.message}
                           onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                           required
+                          className="resize-none border-border/60 text-sm"
                         />
                       </div>
-                      <Button type="submit" className="w-full h-11 font-medium" disabled={isSubmitting}>
+                      <Button type="submit" className="w-full h-10 font-semibold text-sm" disabled={isSubmitting}>
                         {isSubmitting ? (
                           <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             Sending...
                           </>
                         ) : (
-                          "Send Message"
+                          <>
+                            Send Message
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </>
                         )}
                       </Button>
                     </form>
@@ -240,54 +259,63 @@ export default function ContactPage() {
             </div>
 
             {/* Sidebar Info */}
-            <div className="lg:col-span-2 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Clock className="h-5 w-5 text-primary" />
+            <div className="lg:col-span-2 space-y-4">
+              <Card className="border-2 border-border/60 hover:border-border transition-colors">
+                <CardHeader className="border-b border-border/50 pb-3">
+                  <CardTitle className="flex items-center gap-2 text-sm">
+                    <Clock className="h-4 w-4 text-primary" />
                     Response Times
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center pb-3 border-b">
-                    <span className="text-sm text-muted-foreground">General Inquiries</span>
-                    <span className="text-sm font-medium">24-48 hours</span>
+                <CardContent className="p-4 space-y-2">
+                  <div className="flex items-center justify-between py-2 px-2 rounded text-sm">
+                    <span className="text-xs text-muted-foreground">General</span>
+                    <span className="text-xs font-semibold text-foreground">24-48 hrs</span>
                   </div>
-                  <div className="flex justify-between items-center pb-3 border-b">
-                    <span className="text-sm text-muted-foreground">Technical Support</span>
-                    <span className="text-sm font-medium">4-8 hours</span>
+                  <div className="flex items-center justify-between py-2 px-2 rounded text-sm">
+                    <span className="text-xs text-muted-foreground">Technical</span>
+                    <span className="text-xs font-semibold text-foreground">4-8 hrs</span>
                   </div>
-                  <div className="flex justify-between items-center pb-3 border-b">
-                    <span className="text-sm text-muted-foreground">Billing Issues</span>
-                    <span className="text-sm font-medium">1-2 hours</span>
+                  <div className="flex items-center justify-between py-2 px-2 rounded text-sm">
+                    <span className="text-xs text-muted-foreground">Billing</span>
+                    <span className="text-xs font-semibold text-success">1-2 hrs</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Enterprise Support</span>
-                    <span className="text-sm font-medium text-success">Priority</span>
+                  <div className="flex items-center justify-between py-2 px-2 rounded text-sm">
+                    <span className="text-xs text-muted-foreground">Enterprise</span>
+                    <span className="text-xs font-semibold text-primary">Priority</span>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Building2 className="h-5 w-5 text-primary" />
+              <Card className="border-2 border-border/60 hover:border-border transition-colors">
+                <CardHeader className="border-b border-border/50 pb-3">
+                  <CardTitle className="flex items-center gap-2 text-sm">
+                    <Building2 className="h-4 w-4 text-primary" />
                     Office Hours
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Monday - Friday</span>
-                    <span className="text-sm font-medium">9:00 AM - 6:00 PM EST</span>
+                <CardContent className="p-4 space-y-2">
+                  <div className="flex items-center justify-between py-2 px-2 rounded text-sm">
+                    <span className="text-xs text-muted-foreground">Mon - Fri</span>
+                    <span className="text-xs font-semibold text-foreground">9 AM - 6 PM</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Saturday</span>
-                    <span className="text-sm font-medium">10:00 AM - 4:00 PM EST</span>
+                  <div className="flex items-center justify-between py-2 px-2 rounded text-sm">
+                    <span className="text-xs text-muted-foreground">Saturday</span>
+                    <span className="text-xs font-semibold text-foreground">10 AM - 4 PM</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Sunday</span>
-                    <span className="text-sm font-medium text-muted-foreground">Closed</span>
+                  <div className="flex items-center justify-between py-2 px-2 rounded text-sm">
+                    <span className="text-xs text-muted-foreground">Sunday</span>
+                    <span className="text-xs font-semibold text-muted-foreground">Closed</span>
                   </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm">💡 Tip</CardTitle>
+                </CardHeader>
+                <CardContent className="text-xs text-muted-foreground">
+                  Check our Help Center for instant answers.
                 </CardContent>
               </Card>
             </div>

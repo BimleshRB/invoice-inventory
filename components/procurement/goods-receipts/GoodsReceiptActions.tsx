@@ -151,8 +151,8 @@ export function GoodsReceiptActions({ storeId }: Props) {
             min={0}
             step="0.01"
             placeholder="Qty received"
-            value={quickItem.quantityReceived}
-            onChange={(e) => setQuickItem((p) => ({ ...p, quantityReceived: Number(e.target.value) }))}
+            value={quickItem.quantityReceived || ""}
+            onChange={(e) => setQuickItem((p) => ({ ...p, quantityReceived: e.target.value ? Number(e.target.value) : "" }))}
           />
           <input
             className={inputCls}

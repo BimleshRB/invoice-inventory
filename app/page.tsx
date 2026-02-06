@@ -21,6 +21,8 @@ import {
 } from "lucide-react"
 import { LandingHeader } from "@/components/landing/header"
 import { LandingFooter } from "@/components/landing/footer"
+import { PricingCard } from "@/components/pricing/pricing-card"
+import { PRICING_TIERS_LANDING } from "@/lib/pricing-config"
 
 const features = [
   {
@@ -95,54 +97,6 @@ const testimonials = [
   },
 ]
 
-const pricingPlans = [
-  {
-    name: "Starter",
-    price: "₹0",
-    period: "forever",
-    description: "Perfect for small businesses getting started",
-    features: ["Up to 100 products", "50 invoices/month", "Basic analytics", "Email support", "1 user account"],
-    cta: "Get Started Free",
-    popular: false,
-  },
-  {
-    name: "Professional",
-    price: "₹2,499",
-    period: "month",
-    description: "For growing businesses that need more",
-    features: [
-      "Unlimited products",
-      "Unlimited invoices",
-      "Advanced analytics",
-      "Priority support",
-      "Bulk import/export",
-      "Custom branding",
-      "5 user accounts",
-      "API access",
-    ],
-    cta: "Start Free Trial",
-    popular: true,
-  },
-  {
-    name: "Enterprise",
-    price: "₹7,999",
-    period: "month",
-    description: "For large organizations with advanced needs",
-    features: [
-      "Everything in Pro",
-      "Multi-location support",
-      "Full API access",
-      "Dedicated manager",
-      "Custom integrations",
-      "99.99% SLA",
-      "Unlimited users",
-      "On-premise option",
-    ],
-    cta: "Contact Sales",
-    popular: false,
-  },
-]
-
 const steps = [
   {
     step: "01",
@@ -166,165 +120,160 @@ const steps = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background via-background to-muted/30">
       <LandingHeader />
 
-      {/* Hero Section */}
-      <section className="relative pt-24 sm:pt-28 pb-16 sm:pb-20 lg:pt-40 lg:pb-32 overflow-hidden">
-        {/* Background */}
+      {/* Hero Section - Enhanced */}
+      <section className="relative pt-20 sm:pt-28 pb-20 sm:pb-28 lg:pt-44 lg:pb-40 overflow-hidden">
+        {/* Animated Background Gradients */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-150 sm:w-250 h-100 sm:h-150 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent rounded-full blur-3xl opacity-60" />
-          <div className="absolute top-20 right-0 w-50 sm:w-100 h-50 sm:h-100 bg-gradient-to-bl from-chart-2/20 to-transparent rounded-full blur-3xl opacity-40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/8 via-transparent to-transparent" />
+          <div className="absolute -top-40 left-1/4 w-96 h-96 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" />
+          <div className="absolute -bottom-40 right-1/4 w-96 h-96 bg-chart-1/20 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000" />
+          <div className="absolute top-1/2 right-0 w-72 h-72 bg-chart-2/20 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000" />
         </div>
 
-        <div className="container mx-auto max-w-7xl px-4 relative">
-          <div className="text-center max-w-4xl mx-auto">
+        <div className="container mx-auto max-w-7xl px-4 relative z-10">
+          <div className="text-center max-w-5xl mx-auto">
             <Badge
               variant="secondary"
-              className="mb-4 sm:mb-6 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium border border-primary/20 bg-primary/5"
+              className="mb-6 px-4 py-2 text-xs sm:text-sm font-semibold border border-primary/20 bg-primary/8 inline-flex items-center gap-2 hover:bg-primary/10 transition-colors"
             >
-              <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1.5 sm:mr-2 text-primary" />
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
               Trusted by 50,000+ businesses across India
             </Badge>
 
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight text-foreground mb-4 sm:mb-6 text-balance leading-[1.1]">
-              Inventory Management,{" "}
-              <span className="bg-gradient-to-r from-primary via-primary to-chart-1 bg-clip-text text-transparent">
-                Reimagined
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-foreground mb-6 text-balance leading-[1.1] space-y-2">
+              Manage Your Business
+              <br />
+              <span className="bg-gradient-to-r from-primary via-chart-1 to-primary bg-clip-text text-transparent animate-gradient">
+                With Precision
               </span>
             </h1>
 
-            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed text-pretty px-4">
-              The all-in-one platform to track inventory, generate GST-compliant invoices, and grow your business with
-              powerful real-time analytics.
+            <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed text-pretty font-light">
+              The complete all-in-one platform for inventory management, GST-compliant invoicing, and business analytics. 
+              Join thousands of businesses growing faster.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-6 px-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 px-4">
               <Button
                 asChild
                 size="lg"
-                className="h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all"
+                className="h-13 px-8 text-base font-semibold rounded-xl shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all group relative overflow-hidden"
               >
-                <Link href="/signup">
+                <Link href="/signup" className="relative z-10">
                   Start Free Trial
-                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
               <Button
                 asChild
                 variant="outline"
                 size="lg"
-                className="h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-semibold bg-background/50 backdrop-blur-sm border-2"
+                className="h-13 px-8 text-base font-semibold rounded-xl border-2 bg-background/80 backdrop-blur-sm hover:bg-muted/50 transition-colors"
               >
-                <Link href="/demo">
-                  <Play className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                  Watch Demo
+                <Link href="/demo" className="flex items-center gap-2">
+                  <Play className="h-5 w-5" />
+                  Watch Demo (3 min)
                 </Link>
               </Button>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-success" />
-                No credit card required
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+              <span className="flex items-center gap-2 hover:text-foreground transition-colors">
+                <CheckCircle className="h-4 w-4 text-success flex-shrink-0" />
+                <span className="font-medium">No credit card required</span>
               </span>
-              <span className="flex items-center gap-1.5">
-                <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-success" />
-                14-day free trial
+              <span className="hidden sm:block w-1 h-1 rounded-full bg-border" />
+              <span className="flex items-center gap-2 hover:text-foreground transition-colors">
+                <CheckCircle className="h-4 w-4 text-success flex-shrink-0" />
+                <span className="font-medium">30-day free trial</span>
               </span>
-              <span className="flex items-center gap-1.5">
-                <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-success" />
-                Cancel anytime
+              <span className="hidden sm:block w-1 h-1 rounded-full bg-border" />
+              <span className="flex items-center gap-2 hover:text-foreground transition-colors">
+                <CheckCircle className="h-4 w-4 text-success flex-shrink-0" />
+                <span className="font-medium">Cancel anytime</span>
               </span>
             </div>
           </div>
 
-          {/* Dashboard Preview */}
-          <div className="mt-12 sm:mt-16 lg:mt-24 relative px-2 sm:px-0">
-            <div className="absolute -inset-4 bg-gradient-to-r from-primary/30 via-chart-2/20 to-primary/30 rounded-3xl blur-3xl opacity-40" />
-            <div className="relative rounded-xl sm:rounded-2xl border-2 border-border/50 bg-card shadow-2xl overflow-hidden">
-              <div className="bg-muted/80 px-3 sm:px-4 py-2 sm:py-3 border-b flex items-center gap-2 sm:gap-3">
-                <div className="flex gap-1.5 sm:gap-2">
-                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-400" />
-                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-yellow-400" />
-                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-400" />
+          {/* Enhanced Dashboard Preview */}
+          <div className="mt-20 lg:mt-28 relative px-2 sm:px-0">
+            <div className="absolute -inset-6 bg-gradient-to-r from-primary/40 via-chart-2/30 to-primary/40 rounded-3xl blur-3xl opacity-30 -z-10" />
+            <div className="relative rounded-2xl sm:rounded-3xl border-2 border-border/60 bg-card shadow-2xl overflow-hidden backdrop-blur-xl">
+              <div className="bg-muted/60 px-4 sm:px-6 py-3 border-b flex items-center gap-3">
+                <div className="flex gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-400" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                  <div className="w-3 h-3 rounded-full bg-green-400" />
                 </div>
                 <div className="flex-1 flex justify-center">
-                  <div className="bg-background px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs text-muted-foreground font-medium border">
+                  <div className="bg-background px-4 py-1.5 rounded-lg text-xs text-muted-foreground font-medium border">
                     app.inventoryflow.in/dashboard
                   </div>
                 </div>
               </div>
-              <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-muted/30 to-background">
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+              <div className="p-6 lg:p-8 bg-gradient-to-br from-card via-card to-muted/5">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                   {[
-                    { label: "Total Products", value: "2,847", change: "+12.5%", positive: true },
-                    { label: "Monthly Revenue", value: "₹10,84,300", change: "+23.1%", positive: true },
-                    { label: "Active Orders", value: "156", change: "+8.2%", positive: true },
-                    { label: "Customers", value: "1,892", change: "+15.3%", positive: true },
+                    { label: "Total Products", value: "2,847", change: "+12.5%", icon: "📦" },
+                    { label: "Monthly Revenue", value: "₹10.84L", change: "+23.1%", icon: "💰" },
+                    { label: "Active Orders", value: "156", change: "+8.2%", icon: "📋" },
+                    { label: "Customers", value: "1,892", change: "+15.3%", icon: "👥" },
                   ].map((stat, i) => (
-                    <div key={i} className="bg-card rounded-lg sm:rounded-xl p-3 sm:p-4 border shadow-sm">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">{stat.label}</p>
-                      <p className="text-lg sm:text-2xl font-bold text-foreground mt-1">{stat.value}</p>
-                      <p
-                        className={`text-[10px] sm:text-xs font-medium mt-1 ${stat.positive ? "text-success" : "text-destructive"}`}
-                      >
-                        {stat.change} vs last month
-                      </p>
+                    <div key={i} className="bg-gradient-to-br from-card/80 to-muted/20 rounded-xl p-4 border shadow-sm hover:shadow-md transition-shadow">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs text-muted-foreground font-semibold">{stat.label}</p>
+                        <span className="text-lg">{stat.icon}</span>
+                      </div>
+                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                      <p className="text-xs font-semibold text-success mt-2">↑ {stat.change}</p>
                     </div>
                   ))}
                 </div>
-                <div className="grid lg:grid-cols-2 gap-3 sm:gap-4">
-                  <div className="bg-card rounded-lg sm:rounded-xl p-4 sm:p-5 border shadow-sm h-40 sm:h-52">
-                    <div className="flex items-center justify-between mb-3 sm:mb-4">
-                      <h4 className="font-semibold text-xs sm:text-sm">Revenue Overview</h4>
-                      <Badge variant="secondary" className="text-[10px] sm:text-xs">
-                        This Week
-                      </Badge>
+                <div className="grid lg:grid-cols-2 gap-4">
+                  <div className="bg-gradient-to-br from-card/80 to-muted/20 rounded-xl p-5 border shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-semibold text-sm">Revenue Trend</h4>
+                      <Badge variant="secondary" className="text-xs">Weekly</Badge>
                     </div>
-                    <div className="flex items-end justify-between h-24 sm:h-32 gap-1.5 sm:gap-2">
+                    <div className="flex items-end justify-between h-32 gap-2">
                       {[40, 65, 45, 80, 55, 90, 75].map((h, i) => (
-                        <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                        <div key={i} className="flex flex-col items-center gap-1 flex-1">
                           <div
-                            className="w-full bg-gradient-to-t from-primary to-primary/60 rounded-t-sm transition-all"
+                            className="w-full bg-gradient-to-t from-primary/80 to-primary rounded-t transition-all hover:from-primary to-primary/60"
                             style={{ height: `${h}%` }}
                           />
-                          <span className="text-[8px] sm:text-[10px] text-muted-foreground">
-                            {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i]}
+                          <span className="text-[10px] text-muted-foreground font-medium">
+                            {["M", "T", "W", "T", "F", "S", "S"][i]}
                           </span>
                         </div>
                       ))}
                     </div>
                   </div>
-                  <div className="bg-card rounded-lg sm:rounded-xl p-4 sm:p-5 border shadow-sm h-40 sm:h-52">
-                    <div className="flex items-center justify-between mb-3 sm:mb-4">
-                      <h4 className="font-semibold text-xs sm:text-sm">Top Products</h4>
-                      <Badge variant="secondary" className="text-[10px] sm:text-xs">
-                        By Sales
-                      </Badge>
+                  <div className="bg-gradient-to-br from-card/80 to-muted/20 rounded-xl p-5 border shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-semibold text-sm">Top Performers</h4>
+                      <Badge variant="secondary" className="text-xs">By Sales</Badge>
                     </div>
-                    <div className="space-y-2 sm:space-y-3">
+                    <div className="space-y-3">
                       {[
                         { name: "Wireless Headphones", sales: 245, percent: 100 },
                         { name: "Smart Watch Pro", sales: 189, percent: 77 },
                         { name: "USB-C Hub", sales: 156, percent: 64 },
-                        { name: "Mechanical Keyboard", sales: 134, percent: 55 },
+                        { name: "Keyboard", sales: 134, percent: 55 },
                       ].map((product, i) => (
-                        <div key={i} className="flex items-center gap-2 sm:gap-3">
-                          <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-muted flex items-center justify-center text-[10px] sm:text-xs font-bold text-muted-foreground">
+                        <div key={i} className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-lg bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
                             {i + 1}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs sm:text-sm font-medium truncate">{product.name}</p>
-                            <div className="h-1 sm:h-1.5 bg-muted rounded-full mt-1 overflow-hidden">
-                              <div
-                                className="h-full bg-primary rounded-full"
-                                style={{ width: `${product.percent}%` }}
-                              />
+                            <p className="text-xs font-medium truncate">{product.name}</p>
+                            <div className="h-1.5 bg-muted rounded-full mt-1 overflow-hidden">
+                              <div className="h-full bg-gradient-to-r from-primary to-chart-1 rounded-full" style={{ width: `${product.percent}%` }} />
                             </div>
                           </div>
-                          <span className="text-[10px] sm:text-xs text-muted-foreground">{product.sales}</span>
                         </div>
                       ))}
                     </div>
@@ -336,55 +285,52 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-12 sm:py-16 border-y bg-muted/20">
+      {/* Stats Section - Enhanced */}
+      <section className="py-16 sm:py-20 lg:py-24 border-y border-border/50 bg-gradient-to-r from-primary/5 via-transparent to-chart-2/5">
         <div className="container mx-auto max-w-7xl px-4">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-12">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12">
             {stats.map((stat, i) => (
-              <div key={i} className="text-center">
-                <div className="inline-flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-primary/10 text-primary mb-2 sm:mb-3">
-                  <stat.icon className="h-5 w-5 sm:h-6 sm:w-6" />
+              <div key={i} className="text-center group">
+                <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 text-primary mb-4 group-hover:from-primary/30 group-hover:to-primary/20 transition-colors">
+                  <stat.icon className="h-7 w-7" />
                 </div>
-                <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">{stat.value}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1">{stat.label}</p>
+                <p className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground">{stat.value}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-2 font-semibold">{stat.label}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-16 sm:py-24 lg:py-32">
+      {/* Features Section - Enhanced */}
+      <section id="features" className="py-20 sm:py-28 lg:py-36">
         <div className="container mx-auto max-w-7xl px-4">
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <Badge variant="secondary" className="mb-4">
-              Powerful Features
+          <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
+            <Badge variant="secondary" className="mb-4 bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
+              🚀 Powerful Features
             </Badge>
-            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-foreground mb-4 sm:mb-6 text-balance">
-              Everything You Need to Run Your Business
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground mb-6 text-balance">
+              Everything You Need to Grow
             </h2>
             <p className="text-base sm:text-lg text-muted-foreground text-pretty">
-              From inventory tracking to invoice generation, get all the tools you need in one powerful platform.
+              Designed for modern businesses. From inventory tracking to analytics, get all the tools in one powerful platform.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {features.map((feature, i) => (
               <Card
                 key={i}
-                className="group relative overflow-hidden border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-lg"
+                className="group relative overflow-hidden border-2 border-border/60 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10"
               >
-                <CardContent className="p-5 sm:p-6">
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
-                  />
-                  <div className="relative">
-                    <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-primary/20 transition-colors">
-                      <feature.icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                    </div>
-                    <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <CardContent className="p-7 relative z-10">
+                  <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-5 group-hover:from-primary/30 group-hover:to-primary/20 transition-colors">
+                    <feature.icon className="h-6 w-6 text-primary" />
                   </div>
+                  <h3 className="text-lg sm:text-xl font-bold text-foreground mb-3">{feature.title}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
+                  <ArrowRight className="h-5 w-5 text-primary mt-4 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all" />
                 </CardContent>
               </Card>
             ))}
@@ -392,30 +338,31 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* How It Works - Fixed alignment */}
-      <section className="py-16 sm:py-24 lg:py-32 bg-muted/30">
+      {/* How It Works - Enhanced */}
+      <section className="py-20 sm:py-28 lg:py-36 bg-gradient-to-b from-muted/40 to-muted/20">
         <div className="container mx-auto max-w-7xl px-4">
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <Badge variant="secondary" className="mb-4">
-              How It Works
+          <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
+            <Badge variant="secondary" className="mb-4 bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
+              ⚡ Quick Setup
             </Badge>
-            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-foreground mb-4 sm:mb-6">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground mb-6">
               Get Started in Minutes
             </h2>
             <p className="text-base sm:text-lg text-muted-foreground">
-              Simple setup process to get your business running smoothly
+              Simple 3-step process to launch your business
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-3 gap-8 lg:gap-12 relative max-w-4xl mx-auto">
-            <div className="hidden sm:block absolute top-7 left-[calc(16.67%+1.75rem)] right-[calc(16.67%+1.75rem)] h-0.5 bg-gradient-to-r from-primary via-primary/50 to-primary" />
+          <div className="grid sm:grid-cols-3 gap-8 relative max-w-5xl mx-auto">
+            {/* Connection Line */}
+            <div className="hidden sm:block absolute top-12 left-[calc(16.67%+1.75rem)] right-[calc(16.67%+1.75rem)] h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
             {steps.map((item, i) => (
-              <div key={i} className="relative text-center">
-                <div className="inline-flex items-center justify-center h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-primary text-primary-foreground font-bold text-lg sm:text-xl mb-4 sm:mb-6 shadow-lg shadow-primary/25 relative z-10">
+              <div key={i} className="relative text-center group">
+                <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-black text-2xl mb-6 shadow-lg shadow-primary/30 group-hover:shadow-xl group-hover:shadow-primary/40 transition-all group-hover:scale-110 relative z-10">
                   {item.step}
                 </div>
-                <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2 sm:mb-3">{item.title}</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-foreground mb-3">{item.title}</h3>
                 <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-sm mx-auto">
                   {item.description}
                 </p>
@@ -425,42 +372,40 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-16 sm:py-24 lg:py-32">
+      {/* Testimonials - Enhanced */}
+      <section className="py-20 sm:py-28 lg:py-36">
         <div className="container mx-auto max-w-7xl px-4">
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <Badge variant="secondary" className="mb-4">
-              Customer Stories
+          <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
+            <Badge variant="secondary" className="mb-4 bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
+              💬 Success Stories
             </Badge>
-            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-foreground mb-4 sm:mb-6">
-              Loved by Businesses Across India
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground mb-6">
+              Loved by Successful Businesses
             </h2>
             <p className="text-base sm:text-lg text-muted-foreground">
-              See what our customers have to say about InventoryFlow
+              See how InventoryFlow is transforming businesses across India
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {testimonials.map((testimonial, i) => (
-              <Card key={i} className="border-2 hover:border-primary/30 transition-colors">
-                <CardContent className="p-5 sm:p-6">
-                  <div className="flex gap-1 mb-3 sm:mb-4">
+              <Card key={i} className="group border-2 border-border/60 hover:border-primary/50 hover:shadow-xl transition-all duration-300">
+                <CardContent className="p-7">
+                  <div className="flex gap-1 mb-5">
                     {[...Array(5)].map((_, j) => (
-                      <Star key={j} className="h-4 w-4 sm:h-5 sm:w-5 fill-yellow-400 text-yellow-400" />
+                      <Star key={j} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <p className="text-foreground mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">
+                  <p className="text-foreground mb-6 leading-relaxed text-sm sm:text-base font-medium">
                     &ldquo;{testimonial.quote}&rdquo;
                   </p>
-                  <div className="flex items-center gap-3 pt-3 sm:pt-4 border-t">
-                    <img
-                      src={testimonial.avatar || "/placeholder.svg"}
-                      alt={testimonial.author}
-                      className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-muted object-cover"
-                    />
-                    <div>
-                      <p className="font-semibold text-foreground text-sm">{testimonial.author}</p>
-                      <p className="text-xs text-muted-foreground">{testimonial.role}</p>
+                  <div className="flex items-center gap-3 pt-5 border-t">
+                    <div className="h-11 w-11 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center text-lg flex-shrink-0">
+                      {testimonial.author.charAt(0)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-foreground text-sm truncate">{testimonial.author}</p>
+                      <p className="text-xs text-muted-foreground truncate">{testimonial.company}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -470,88 +415,69 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="py-16 sm:py-24 lg:py-32 bg-muted/30">
+      {/* Pricing - Enhanced */}
+      <section id="pricing" className="py-20 sm:py-28 lg:py-36 bg-gradient-to-b from-muted/40 to-muted/20">
         <div className="container mx-auto max-w-7xl px-4">
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <Badge variant="secondary" className="mb-4">
-              Simple Pricing
+          <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
+            <Badge variant="secondary" className="mb-4 bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
+              💳 Transparent Pricing
             </Badge>
-            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-foreground mb-4 sm:mb-6">
-              Choose Your Plan
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground mb-6">
+              Plans for Every Business Size
             </h2>
-            <p className="text-base sm:text-lg text-muted-foreground">Start free, scale as you grow. No hidden fees.</p>
+            <p className="text-base sm:text-lg text-muted-foreground mb-8">Start free, scale as you grow. No hidden charges.</p>
+            <Button asChild className="h-11 font-semibold">
+              <Link href="/pricing">
+                View All Plans & Details
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
-            {pricingPlans.map((plan, i) => (
-              <Card
-                key={i}
-                className={`relative border-2 ${
-                  plan.popular ? "border-primary shadow-lg shadow-primary/10 scale-[1.02]" : "border-border"
-                }`}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
-                  </div>
-                )}
-                <CardContent className="p-5 sm:p-6 pt-6 sm:pt-8">
-                  <h3 className="text-lg sm:text-xl font-bold text-foreground">{plan.name}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
-                  <div className="my-4 sm:my-6">
-                    <span className="text-3xl sm:text-4xl font-bold text-foreground">{plan.price}</span>
-                    <span className="text-muted-foreground">/{plan.period}</span>
-                  </div>
-                  <ul className="space-y-2 sm:space-y-3 mb-6">
-                    {plan.features.map((feature, j) => (
-                      <li key={j} className="flex items-center gap-2 text-sm">
-                        <CheckCircle className="h-4 w-4 text-success flex-shrink-0" />
-                        <span className="text-muted-foreground">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <Button asChild className="w-full" variant={plan.popular ? "default" : "outline"}>
-                    <Link href="/signup">{plan.cta}</Link>
-                  </Button>
-                </CardContent>
-              </Card>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
+            {PRICING_TIERS_LANDING.map((tier) => (
+              <PricingCard key={tier.id} tier={tier} billingPeriod="monthly" showFullFeatures={false} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-16 sm:py-24 lg:py-32">
+      {/* Final CTA - Enhanced */}
+      <section className="py-20 sm:py-28 lg:py-36">
         <div className="container mx-auto max-w-7xl px-4">
-          <div className="relative rounded-2xl sm:rounded-3xl bg-gradient-to-br from-primary to-primary/80 p-8 sm:p-12 lg:p-16 text-center overflow-hidden">
-            <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.5))]" />
-            <div className="relative">
-              <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-primary-foreground mb-4 sm:mb-6 text-balance">
-                Ready to Transform Your Business?
+          <div className="relative rounded-3xl bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-12 sm:p-16 lg:p-20 text-center overflow-hidden group">
+            {/* Background Effects */}
+            <div className="absolute inset-0 opacity-20">
+              <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full mix-blend-multiply filter blur-3xl" />
+              <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full mix-blend-multiply filter blur-3xl" />
+            </div>
+
+            <div className="relative z-10">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-primary-foreground mb-6 text-balance">
+                Start Growing Your Business Today
               </h2>
-              <p className="text-base sm:text-lg text-primary-foreground/80 max-w-2xl mx-auto mb-6 sm:mb-8">
-                Join 50,000+ businesses already using InventoryFlow to streamline operations and boost revenue.
+              <p className="text-lg sm:text-xl text-primary-foreground/90 max-w-2xl mx-auto mb-10 font-medium">
+                Join thousands of successful businesses already using InventoryFlow to manage inventory, track sales, and grow faster.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   asChild
                   size="lg"
                   variant="secondary"
-                  className="h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-semibold"
+                  className="h-13 px-8 text-base font-semibold rounded-xl"
                 >
                   <Link href="/signup">
-                    Start Your Free Trial
-                    <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                    Get Started Free
+                    <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
                 <Button
                   asChild
                   size="lg"
                   variant="outline"
-                  className="h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-semibold border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10 bg-transparent"
+                  className="h-13 px-8 text-base font-semibold rounded-xl border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 bg-transparent"
                 >
-                  <Link href="/contact">Talk to Sales</Link>
+                  <Link href="/contact">Contact Sales</Link>
                 </Button>
               </div>
             </div>

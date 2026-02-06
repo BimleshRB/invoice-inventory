@@ -10,14 +10,16 @@ import { format } from "date-fns"
 import { formatCurrency } from "@/lib/utils"
 import { Package, Calendar, DollarSign, TrendingUp, FileText, Clock } from "lucide-react"
 
-interface BatchItem {
+interface BatchData {
   id: string
+  productId: string
   productName: string
   batchNumber: string
   quantity: number
+  availableQuantity?: number
   expiryDate: string
   createdAt: string
-  costPrice?: number
+  purchaseCost?: number
   sellingPrice?: number
   notes?: string
 }
@@ -32,7 +34,7 @@ function statusFor(expiryDate: string) {
 export default function BatchDetailsPage() {
   const params = useParams()
   const batchNumber = typeof params?.batchNumber === "string" ? params.batchNumber : Array.isArray(params?.batchNumber) ? params?.batchNumber?.[0] : ""
-  const [items, setItems] = useState<BatchItem[]>([])
+  const [batch, setBatch] = useState<BatchData | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -41,29 +43,32 @@ export default function BatchDetailsPage() {
       try {
         const token = localStorage.getItem("token")
         const base = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8080"
-        const res = await fetch(`${base}/api/products/batches/by-number/${encodeURIComponent(batchNumber)}`, {
+        const res = await fetch(`${base}/api/products/batches/batch-number/${encodeURIComponent(batchNumber)}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (res.ok) {
           const data = await res.json()
-          const list = Array.isArray(data) ? data : data.content || data.data || []
-          const mapped = list.map((b: any) => ({
-            id: String(b.id),
-            productName: b.product?.name || b.productName || "Unknown",
-            batchNumber: b.batchNumber,
-            quantity: b.quantity,
-            expiryDate: b.expiryDate,
-            createdAt: b.createdAt,
-            costPrice: b.costPrice ?? 0,
-            sellingPrice: b.sellingPrice ?? b.product?.sellingPrice ?? 0,
-            notes: b.notes,
-          }))
-          setItems(mapped)
+          // Backend returns a single batch object, not an array
+          const batchData: BatchData = {
+            id: String(data.id),
+            productId: String(data.productId),
+            productName: data.product?.name || "Unknown Product",
+            batchNumber: data.batchNumber,
+            quantity: data.quantity ?? 0,
+            availableQuantity: data.availableQuantity ?? data.quantity ?? 0,
+            expiryDate: data.expiryDate,
+            createdAt: data.createdAt,
+            purchaseCost: data.purchaseCost ?? 0,
+            sellingPrice: data.product?.sellingPrice ?? 0,
+            notes: data.notes,
+          }
+          setBatch(batchData)
         } else {
-          setItems([])
+          setBatch(null)
         }
       } catch (e) {
-        setItems([])
+        console.error("Failed to load batch:", e)
+        setBatch(null)
       } finally {
         setLoading(false)
       }
@@ -71,27 +76,23 @@ export default function BatchDetailsPage() {
     load()
   }, [batchNumber])
 
-  const getTotalQuantity = () => {
-    return items.reduce((sum, item) => sum + item.quantity, 0)
-  }
-
   const getTotalCost = () => {
-    return items.reduce((sum, item) => sum + (item.costPrice ?? 0) * item.quantity, 0)
+    if (!batch) return 0
+    return (batch.purchaseCost ?? 0) * batch.quantity
   }
 
   const getTotalValue = () => {
-    return items.reduce((sum, item) => sum + (item.sellingPrice ?? 0) * item.quantity, 0)
+    if (!batch) return 0
+    return (batch.sellingPrice ?? 0) * batch.quantity
   }
 
   const getMargin = () => {
-    const cost = getTotalCost()
-    const value = getTotalValue()
-    return value - cost
+    return getTotalValue() - getTotalCost()
   }
 
   return (
     <div className="space-y-6">
-      <Header title={`Batch ${batchNumber || "-"}`} description="Products added in this batch" />
+      <Header title={`Batch ${batchNumber || "-"}`} description="Batch details and inventory information" />
 
       {loading ? (
         <Card>
@@ -102,12 +103,12 @@ export default function BatchDetailsPage() {
             </div>
           </CardContent>
         </Card>
-      ) : items.length === 0 ? (
+      ) : !batch ? (
         <Card>
           <CardContent className="p-12 flex items-center justify-center">
             <div className="text-center">
               <Package className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-              <p className="text-sm font-medium text-muted-foreground mb-2">No products found for this batch</p>
+              <p className="text-sm font-medium text-muted-foreground mb-2">Batch not found</p>
               <p className="text-xs text-muted-foreground">This batch may have been deleted or doesn't exist.</p>
             </div>
           </CardContent>
@@ -120,8 +121,8 @@ export default function BatchDetailsPage() {
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Products</p>
-                    <p className="text-3xl font-bold">{items.length}</p>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Product</p>
+                    <p className="text-lg font-bold">{batch.productName}</p>
                   </div>
                   <Package className="h-4 w-4 text-muted-foreground" />
                 </div>
@@ -133,7 +134,10 @@ export default function BatchDetailsPage() {
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Quantity</p>
-                    <p className="text-3xl font-bold">{getTotalQuantity().toLocaleString()}</p>
+                    <p className="text-3xl font-bold">{batch.quantity.toLocaleString()}</p>
+                    {batch.availableQuantity !== undefined && batch.availableQuantity !== batch.quantity && (
+                      <p className="text-xs text-muted-foreground">Available: {batch.availableQuantity.toLocaleString()}</p>
+                    )}
                   </div>
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </div>
@@ -167,116 +171,105 @@ export default function BatchDetailsPage() {
             </Card>
           </div>
 
-          {/* Product Details */}
+          {/* Batch Details */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Product Details</CardTitle>
+              <CardTitle className="text-lg">Batch Information</CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               <div className="space-y-6">
-                {items.map((item, index) => {
-                  const st = statusFor(item.expiryDate)
-                  return (
-                    <div key={item.id}>
-                      {index > 0 && <Separator className="my-6" />}
-                      
-                      <div className="space-y-4">
-                        {/* Header */}
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-base font-semibold truncate">{item.productName}</h3>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge variant={st.variant} className="gap-1">
-                                <Calendar className="h-3 w-3" />
-                                {st.label}
-                              </Badge>
-                              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
-                                Added {item.createdAt ? format(new Date(item.createdAt), "MMM d, yyyy") : "-"}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Details Grid */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-muted/50 rounded-lg p-4">
-                          <div className="space-y-1">
-                            <p className="text-xs text-muted-foreground flex items-center gap-1">
-                              <Package className="h-3 w-3" />
-                              Quantity
-                            </p>
-                            <p className="text-sm font-semibold">{item.quantity.toLocaleString()} units</p>
-                          </div>
-
-                          <div className="space-y-1">
-                            <p className="text-xs text-muted-foreground flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              Expiry Date
-                            </p>
-                            <p className={`text-sm font-semibold ${st.color}`}>
-                              {item.expiryDate ? format(new Date(item.expiryDate), "MMM d, yyyy") : "-"}
-                            </p>
-                          </div>
-
-                          <div className="space-y-1">
-                            <p className="text-xs text-muted-foreground flex items-center gap-1">
-                              <DollarSign className="h-3 w-3" />
-                              Cost/Unit
-                            </p>
-                            <p className="text-sm font-semibold">{formatCurrency(item.costPrice ?? 0)}</p>
-                          </div>
-
-                          <div className="space-y-1">
-                            <p className="text-xs text-muted-foreground flex items-center gap-1">
-                              <TrendingUp className="h-3 w-3" />
-                              Selling/Unit
-                            </p>
-                            <p className="text-sm font-semibold">{formatCurrency(item.sellingPrice ?? 0)}</p>
-                          </div>
-                        </div>
-
-                        {/* Financial Summary */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-3">
-                            <p className="text-xs text-blue-600 dark:text-blue-400 mb-1">Total Cost</p>
-                            <p className="text-lg font-bold text-blue-700 dark:text-blue-300">
-                              {formatCurrency((item.costPrice ?? 0) * item.quantity)}
-                            </p>
-                          </div>
-
-                          <div className="bg-green-50 dark:bg-green-950/20 rounded-lg p-3">
-                            <p className="text-xs text-green-600 dark:text-green-400 mb-1">Est. Revenue</p>
-                            <p className="text-lg font-bold text-green-700 dark:text-green-300">
-                              {formatCurrency((item.sellingPrice ?? 0) * item.quantity)}
-                            </p>
-                          </div>
-
-                          <div className="bg-purple-50 dark:bg-purple-950/20 rounded-lg p-3">
-                            <p className="text-xs text-purple-600 dark:text-purple-400 mb-1">Est. Profit</p>
-                            <p className={`text-lg font-bold ${
-                              ((item.sellingPrice ?? 0) - (item.costPrice ?? 0)) * item.quantity >= 0
-                                ? "text-purple-700 dark:text-purple-300"
-                                : "text-red-600 dark:text-red-400"
-                            }`}>
-                              {formatCurrency(((item.sellingPrice ?? 0) - (item.costPrice ?? 0)) * item.quantity)}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Notes */}
-                        {item.notes && (
-                          <div className="bg-muted/50 rounded-lg p-3">
-                            <p className="text-xs text-muted-foreground flex items-center gap-1 mb-1">
-                              <FileText className="h-3 w-3" />
-                              Notes
-                            </p>
-                            <p className="text-sm">{item.notes}</p>
-                          </div>
-                        )}
-                      </div>
+                {/* Header */}
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-base font-semibold truncate">{batch.productName}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant={statusFor(batch.expiryDate).variant} className="gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {statusFor(batch.expiryDate).label}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        Added {batch.createdAt ? format(new Date(batch.createdAt), "MMM d, yyyy") : "-"}
+                      </span>
                     </div>
-                  )
-                })}
+                  </div>
+                </div>
+
+                {/* Details Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Package className="h-3 w-3" />
+                      Quantity
+                    </p>
+                    <p className="text-sm font-semibold">{batch.quantity.toLocaleString()} units</p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      Expiry Date
+                    </p>
+                    <p className={`text-sm font-semibold ${statusFor(batch.expiryDate).color}`}>
+                      {batch.expiryDate ? format(new Date(batch.expiryDate), "MMM d, yyyy") : "-"}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <DollarSign className="h-3 w-3" />
+                      Cost/Unit
+                    </p>
+                    <p className="text-sm font-semibold">{formatCurrency(batch.purchaseCost ?? 0)}</p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <TrendingUp className="h-3 w-3" />
+                      Selling/Unit
+                    </p>
+                    <p className="text-sm font-semibold">{formatCurrency(batch.sellingPrice ?? 0)}</p>
+                  </div>
+                </div>
+
+                {/* Financial Summary */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-3">
+                    <p className="text-xs text-blue-600 dark:text-blue-400 mb-1">Total Cost</p>
+                    <p className="text-lg font-bold text-blue-700 dark:text-blue-300">
+                      {formatCurrency((batch.purchaseCost ?? 0) * batch.quantity)}
+                    </p>
+                  </div>
+
+                  <div className="bg-green-50 dark:bg-green-950/20 rounded-lg p-3">
+                    <p className="text-xs text-green-600 dark:text-green-400 mb-1">Est. Revenue</p>
+                    <p className="text-lg font-bold text-green-700 dark:text-green-300">
+                      {formatCurrency((batch.sellingPrice ?? 0) * batch.quantity)}
+                    </p>
+                  </div>
+
+                  <div className="bg-purple-50 dark:bg-purple-950/20 rounded-lg p-3">
+                    <p className="text-xs text-purple-600 dark:text-purple-400 mb-1">Est. Profit</p>
+                    <p className={`text-lg font-bold ${
+                      ((batch.sellingPrice ?? 0) - (batch.purchaseCost ?? 0)) * batch.quantity >= 0
+                        ? "text-purple-700 dark:text-purple-300"
+                        : "text-red-600 dark:text-red-400"
+                    }`}>
+                      {formatCurrency(((batch.sellingPrice ?? 0) - (batch.purchaseCost ?? 0)) * batch.quantity)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Notes */}
+                {batch.notes && (
+                  <div className="bg-muted/50 rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground flex items-center gap-1 mb-1">
+                      <FileText className="h-3 w-3" />
+                      Notes
+                    </p>
+                    <p className="text-sm">{batch.notes}</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

@@ -17,7 +17,7 @@ interface BatchHistory {
   id: string
   batchNumber: string
   quantity: number
-  costPrice: number
+  purchaseCost: number
   sellingPrice?: number
   expiryDate: string
   createdAt: string
@@ -178,7 +178,7 @@ export function ProductBatchHistory({ productId }: ProductBatchHistoryProps) {
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Cost/Unit</p>
-                          <p className="font-semibold text-sm">{formatCurrency(batch.costPrice)}</p>
+                          <p className="font-semibold text-sm">{formatCurrency(batch.purchaseCost)}</p>
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Selling/Unit</p>

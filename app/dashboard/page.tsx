@@ -50,22 +50,38 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    console.log('[Dashboard] useEffect triggered')
     // Check if user is admin/super admin and redirect to admin dashboard
     const authUser = getAuthUser()
+    console.log('[Dashboard] authUser:', authUser)
     if (authUser && (authUser.isAdmin || authUser.isSuperAdmin)) {
+      console.log('[Dashboard] Redirecting to admin dashboard')
       router.push("/dashboard/admin")
       return
     }
+    console.log('[Dashboard] Calling loadDashboardData()')
     loadDashboardData()
   }, [])
 
   const loadDashboardData = async () => {
     setIsLoading(true)
+    console.log('[Dashboard] Starting to load dashboard data...')
+    console.log('[Dashboard] API_BASE from api-client:', 'http://localhost:8080/api')
     try {
       // Load stats
+      console.log('[Dashboard] Fetching stats...')
       const statsRes = await dashboardApi.getStats()
+      console.log('[Dashboard] Stats response FULL:', statsRes)
+      console.log('[Dashboard] Stats response.data:', statsRes.data)
+      console.log('[Dashboard] Stats response.error:', statsRes.error)
+      console.log('[Dashboard] Stats response.status:', statsRes.status)
+      
       const statsData = statsRes.data || {}
-      setStats({
+      console.log('[Dashboard] Stats data after default:', statsData)
+      console.log('[Dashboard] Stats data.totalProducts:', statsData.totalProducts)
+      console.log('[Dashboard] Type of totalProducts:', typeof statsData.totalProducts)
+      
+      const newStats = {
         totalProducts: Number(statsData.totalProducts || 0),
         lowStockProducts: Number(statsData.lowStockProducts || 0),
         totalInvoices: Number(statsData.totalInvoices || 0),
@@ -75,7 +91,10 @@ export default function DashboardPage() {
         averageProductPrice: typeof statsData.averageProductPrice === "string" ? parseFloat(statsData.averageProductPrice) : Number(statsData.averageProductPrice || 0),
         paidInvoices: Number(statsData.paidInvoices || 0),
         avgOrderValue: typeof statsData.avgOrderValue === "string" ? parseFloat(statsData.avgOrderValue) : Number(statsData.avgOrderValue || 0),
-      })
+      }
+      console.log('[Dashboard] New stats object:', newStats)
+      setStats(newStats)
+      console.log('[Dashboard] Stats set successfully')
 
       // Load top products
       const topRes = await dashboardApi.getTopProducts()
@@ -114,7 +133,8 @@ export default function DashboardPage() {
         setStoreInfo(storeRes.data)
       }
     } catch (error) {
-      console.error("Failed to load dashboard data:", error)
+      console.error("[Dashboard] Failed to load dashboard data:", error)
+      console.error("[Dashboard] Error details:", error instanceof Error ? error.message : String(error))
       // Fallback to dataStore if API fails
       setStoreInfo(dataStore.getStore())
       setActivities(dataStore.getActivityLogs())

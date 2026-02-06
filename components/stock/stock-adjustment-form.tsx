@@ -82,8 +82,7 @@ export function StockAdjustmentForm({ open, onOpenChange, products, onSubmit }: 
           {selectedProduct && (
             <div className="rounded-lg bg-muted p-3">
               <p className="text-sm text-muted-foreground">
-                Current stock: <span className="font-semibold text-foreground">{selectedProduct.quantity}</span>{" "}
-                {selectedProduct.unit}
+                Unit: <span className="font-semibold text-foreground">{selectedProduct.unit}</span>
               </p>
             </div>
           )}
@@ -108,8 +107,9 @@ export function StockAdjustmentForm({ open, onOpenChange, products, onSubmit }: 
               id="quantity"
               type="number"
               min={type === "adjustment" ? 0 : 1}
-              value={quantity}
-              onChange={(e) => setQuantity(Number.parseInt(e.target.value))}
+              value={quantity || ""}
+              onChange={(e) => setQuantity(e.target.value ? Number.parseInt(e.target.value) : 0)}
+              placeholder="Enter quantity"
               required
             />
           </div>

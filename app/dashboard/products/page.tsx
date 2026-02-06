@@ -6,6 +6,7 @@ import { ProductsTable } from "@/components/products/products-table"
 import { ProductForm } from "@/components/products/product-form"
 import { CategoryDialog } from "@/components/products/category-dialog"
 import { InventoryIntakeDialog } from "@/components/products/inventory-intake-dialog"
+import { PriceHistoryDialog } from "@/components/products/price-history"
 import { Button } from "@/components/ui/button"
 import {
   AlertDialog,
@@ -31,6 +32,7 @@ export default function ProductsPage() {
   const [isIntakeDialogOpen, setIsIntakeDialogOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | undefined>()
   const [deleteProduct, setDeleteProduct] = useState<Product | null>(null)
+  const [priceHistoryProduct, setPriceHistoryProduct] = useState<Product | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const { toast } = useToast()
@@ -202,19 +204,28 @@ export default function ProductsPage() {
         return
       }
       
-      console.log("[UPDATE] Update successful, updating state directly")
+      console.log("[UPDATE] Update successful, reloading data")
       
-      // Update the product in the state directly with the response
-      if (res.data) {
-        const updatedProduct = res.data
-        setProducts(prevProducts => 
-          prevProducts.map(p => p.id === updatedProduct.id ? updatedProduct : p)
-        )
-        console.log("[UPDATE] Product state updated with response:", updatedProduct)
-      }
-
-      // Ensure freshest quantities (recomputed server-side from batches)
-      await reloadProducts()
+      // Reload both products and categories to ensure UI is in sync
+      // This ensures category changes are reflected immediately
+      const [productsReloaded, categoriesReloaded] = await Promise.all([
+        reloadProducts(),
+        (async () => {
+          try {
+            const catRes = await categoryApi.list()
+            if (!catRes.error) {
+              const catItems = Array.isArray(catRes.data) ? catRes.data : (catRes.data as any)?.content || []
+              setCategories(catItems)
+              return true
+            }
+            return false
+          } catch {
+            return false
+          }
+        })()
+      ])
+      
+      console.log("[UPDATE] Data reloaded - products:", productsReloaded, "categories:", categoriesReloaded)
       
       toast({
         title: "Product Updated",
@@ -324,7 +335,13 @@ export default function ProductsPage() {
             Add Product
           </Button>
         </div>
-        <ProductsTable products={products} categories={categories} onEdit={handleEdit} onDelete={setDeleteProduct} />
+        <ProductsTable
+          products={products}
+          categories={categories}
+          onEdit={handleEdit}
+          onDelete={setDeleteProduct}
+          onViewPriceHistory={setPriceHistoryProduct}
+        />
       </div>
 
       <ProductForm
@@ -334,6 +351,12 @@ export default function ProductsPage() {
         categories={categories}
         onSubmit={selectedProduct ? handleUpdateProduct : handleAddProduct}
         isSaving={isSaving}
+      />
+
+      <PriceHistoryDialog
+        productId={priceHistoryProduct?.id || ""}
+        open={!!priceHistoryProduct}
+        onOpenChange={(open) => setPriceHistoryProduct(open ? priceHistoryProduct : null)}
       />
 
       <AlertDialog open={!!deleteProduct} onOpenChange={() => setDeleteProduct(null)}>

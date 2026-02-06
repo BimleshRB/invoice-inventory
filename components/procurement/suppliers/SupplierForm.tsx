@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { supplierApi } from "@/lib/api/procurement";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   storeId: number;
+  onSubmitted?: () => void;
 }
 
-export function SupplierForm({ storeId }: Props) {
+export function SupplierForm({ storeId, onSubmitted }: Props) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -49,6 +51,7 @@ export function SupplierForm({ storeId }: Props) {
       } else {
         setMessage("Supplier added successfully");
         reset();
+        onSubmitted?.();
         // Notify listeners (e.g., SupplierList) to refresh
         if (typeof window !== "undefined") {
           window.dispatchEvent(new CustomEvent("supplier:created"));
@@ -123,13 +126,9 @@ export function SupplierForm({ storeId }: Props) {
           />
         </div>
         <div className="md:col-span-2 flex items-center gap-3">
-          <button
-            type="submit"
-            disabled={submitting || !name.trim()}
-            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-          >
+          <Button type="submit" size="sm" disabled={submitting || !name.trim()}>
             {submitting ? "Saving…" : "Save Supplier"}
-          </button>
+          </Button>
           {message && <div className="text-green-700">{message}</div>}
           {error && <div className="text-red-700">{error}</div>}
         </div>

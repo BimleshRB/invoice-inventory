@@ -88,18 +88,18 @@ export default function AboutPage() {
     <div className="min-h-screen flex flex-col bg-background">
       <LandingHeader />
 
-      <main className="flex-1 pt-24 pb-16">
+      <main className="flex-1 pt-16 pb-12">
         {/* Hero */}
-        <section className="px-4 mb-20">
+        <section className="px-4 mb-14">
           <div className="container mx-auto max-w-7xl">
             <div className="text-center max-w-3xl mx-auto">
-              <Badge variant="secondary" className="mb-4">
+              <Badge variant="secondary" className="mb-3 text-xs">
                 About Us
               </Badge>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 text-balance">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 text-balance">
                 We&apos;re on a mission to simplify business operations
               </h1>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 InventoryFlow helps thousands of businesses manage their inventory, create professional invoices, and
                 make data-driven decisions that drive growth.
               </p>
@@ -108,14 +108,14 @@ export default function AboutPage() {
         </section>
 
         {/* Stats */}
-        <section className="px-4 mb-20">
+        <section className="px-4 mb-14">
           <div className="container mx-auto max-w-7xl">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {stats.map((stat, i) => (
                 <Card key={i} className="border-2 hover:border-primary/30 transition-colors">
-                  <CardContent className="p-6 text-center">
-                    <p className="text-3xl lg:text-4xl font-bold text-primary mb-1">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl lg:text-3xl font-bold text-primary mb-1">{stat.value}</p>
+                    <p className="text-xs text-muted-foreground">{stat.label}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -124,17 +124,17 @@ export default function AboutPage() {
         </section>
 
         {/* Story */}
-        <section className="px-4 mb-20 py-16 bg-muted/30">
+        <section className="px-4 mb-14 py-12 bg-muted/30">
           <div className="container mx-auto max-w-7xl">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="grid lg:grid-cols-2 gap-8 items-center">
               <div>
-                <Badge variant="secondary" className="mb-4">
+                <Badge variant="secondary" className="mb-3 text-xs">
                   Our Story
                 </Badge>
-                <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-6">
+                <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-4">
                   Built by entrepreneurs, for entrepreneurs
                 </h2>
-                <div className="space-y-4 text-muted-foreground leading-relaxed">
+                <div className="space-y-3 text-muted-foreground leading-relaxed text-sm">
                   <p>
                     InventoryFlow was founded in 2020 by Sarah Chen and Michael Torres, two entrepreneurs who
                     experienced firsthand the challenges of managing inventory and invoicing for their own e-commerce
@@ -150,19 +150,19 @@ export default function AboutPage() {
                     enterprise brands. We&apos;re proud to be part of our customers&apos; success stories.
                   </p>
                 </div>
-                <Button asChild className="mt-6">
+                <Button asChild className="mt-4 h-9 text-sm">
                   <Link href="/contact">
                     Get in Touch
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <ArrowRight className="ml-2 h-3 w-3" />
                   </Link>
                 </Button>
               </div>
               <div className="relative">
-                <div className="aspect-video rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden">
+                <div className="aspect-video rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden">
                   <img
                     src="/about-hero.jpg?height=400&width=600&query=modern office team collaboration"
                     alt="InventoryFlow team"
-                    className="w-full h-full object-cover rounded-2xl"
+                    className="w-full h-full object-cover rounded-lg"
                   />
                 </div>
               </div>
@@ -171,23 +171,23 @@ export default function AboutPage() {
         </section>
 
         {/* Timeline */}
-        <section className="px-4 mb-20">
+        <section className="px-4 mb-14">
           <div className="container mx-auto max-w-7xl">
-            <div className="text-center mb-12">
-              <Badge variant="secondary" className="mb-4">
+            <div className="text-center mb-8">
+              <Badge variant="secondary" className="mb-3 text-xs">
                 Our Journey
               </Badge>
-              <h2 className="text-3xl lg:text-4xl font-bold text-foreground">Key Milestones</h2>
+              <h2 className="text-2xl lg:text-3xl font-bold text-foreground">Key Milestones</h2>
             </div>
             <div className="relative">
-              <div className="hidden md:block absolute top-8 left-0 right-0 h-0.5 bg-border" />
-              <div className="grid md:grid-cols-6 gap-6">
+              <div className="hidden md:block absolute top-6 left-0 right-0 h-0.5 bg-border" />
+              <div className="grid md:grid-cols-6 gap-4">
                 {milestones.map((milestone, i) => (
                   <div key={i} className="relative text-center">
-                    <div className="hidden md:block absolute top-6 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-primary border-4 border-background" />
-                    <div className="md:pt-12">
-                      <p className="text-2xl font-bold text-primary mb-1">{milestone.year}</p>
-                      <p className="font-semibold text-foreground mb-1">{milestone.title}</p>
+                    <div className="hidden md:block absolute top-5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-primary border-4 border-background" />
+                    <div className="md:pt-10">
+                      <p className="text-lg font-bold text-primary mb-1">{milestone.year}</p>
+                      <p className="text-sm font-semibold text-foreground mb-1">{milestone.title}</p>
                       <p className="text-xs text-muted-foreground">{milestone.description}</p>
                     </div>
                   </div>
@@ -198,23 +198,23 @@ export default function AboutPage() {
         </section>
 
         {/* Values */}
-        <section className="px-4 mb-20 py-16 bg-muted/30">
+        <section className="px-4 mb-14 py-12 bg-muted/30">
           <div className="container mx-auto max-w-7xl">
-            <div className="text-center mb-12">
-              <Badge variant="secondary" className="mb-4">
+            <div className="text-center mb-8">
+              <Badge variant="secondary" className="mb-3 text-xs">
                 Our Values
               </Badge>
-              <h2 className="text-3xl lg:text-4xl font-bold text-foreground">What drives us forward</h2>
+              <h2 className="text-2xl lg:text-3xl font-bold text-foreground">What drives us forward</h2>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {values.map((value, i) => (
                 <Card key={i} className="border-2 hover:border-primary/30 transition-colors">
-                  <CardContent className="p-6 text-center">
-                    <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                      <value.icon className="h-7 w-7 text-primary" />
+                  <CardContent className="p-4 text-center">
+                    <div className="h-11 w-11 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                      <value.icon className="h-5 w-5 text-primary" />
                     </div>
-                    <h3 className="font-semibold text-foreground mb-2">{value.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{value.description}</p>
+                    <h3 className="text-sm font-semibold text-foreground mb-2">{value.title}</h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{value.description}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -223,18 +223,18 @@ export default function AboutPage() {
         </section>
 
         {/* Team */}
-        <section className="px-4 mb-20">
+        <section className="px-4 mb-14">
           <div className="container mx-auto max-w-7xl">
-            <div className="text-center mb-12">
-              <Badge variant="secondary" className="mb-4">
+            <div className="text-center mb-8">
+              <Badge variant="secondary" className="mb-3 text-xs">
                 Leadership
               </Badge>
-              <h2 className="text-3xl lg:text-4xl font-bold text-foreground">Meet our team</h2>
-              <p className="text-muted-foreground mt-2 max-w-xl mx-auto">
+              <h2 className="text-2xl lg:text-3xl font-bold text-foreground">Meet our team</h2>
+              <p className="text-muted-foreground mt-1 text-sm max-w-xl mx-auto">
                 Passionate experts dedicated to building the best inventory management platform.
               </p>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {team.map((member, i) => (
                 <Card key={i} className="border-2 hover:border-primary/30 transition-colors overflow-hidden">
                   <CardContent className="p-0">
@@ -247,22 +247,22 @@ export default function AboutPage() {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="p-5">
-                      <h3 className="font-semibold text-foreground">{member.name}</h3>
-                      <p className="text-sm text-primary mb-2">{member.role}</p>
-                      <p className="text-xs text-muted-foreground mb-3">{member.bio}</p>
+                    <div className="p-3">
+                      <h3 className="text-sm font-semibold text-foreground">{member.name}</h3>
+                      <p className="text-xs text-primary mb-1">{member.role}</p>
+                      <p className="text-xs text-muted-foreground mb-2">{member.bio}</p>
                       <div className="flex gap-2">
                         <Link
                           href={member.linkedin}
-                          className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
+                          className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
                         >
-                          <Linkedin className="h-4 w-4" />
+                          <Linkedin className="h-3 w-3" />
                         </Link>
                         <Link
                           href={member.twitter}
-                          className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
+                          className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
                         >
-                          <Twitter className="h-4 w-4" />
+                          <Twitter className="h-3 w-3" />
                         </Link>
                       </div>
                     </div>
@@ -274,20 +274,20 @@ export default function AboutPage() {
         </section>
 
         {/* Awards */}
-        <section className="px-4 mb-20 py-16 bg-muted/30">
+        <section className="px-4 mb-14 py-12 bg-muted/30">
           <div className="container mx-auto max-w-7xl">
-            <div className="text-center mb-12">
-              <Badge variant="secondary" className="mb-4">
+            <div className="text-center mb-8">
+              <Badge variant="secondary" className="mb-3 text-xs">
                 Recognition
               </Badge>
-              <h2 className="text-3xl lg:text-4xl font-bold text-foreground">Awards & Recognition</h2>
+              <h2 className="text-2xl lg:text-3xl font-bold text-foreground">Awards & Recognition</h2>
             </div>
-            <div className="flex flex-wrap justify-center gap-8">
+            <div className="flex flex-wrap justify-center gap-4">
               {["G2 Leader 2024", "Capterra Best Value", "Forbes Cloud 100", "Inc. 5000", "ProductHunt #1"].map(
                 (award, i) => (
-                  <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-full bg-card border">
-                    <Award className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium">{award}</span>
+                  <div key={i} className="flex items-center gap-2 px-3 py-1 rounded-full bg-card border text-sm">
+                    <Award className="h-3 w-3 text-primary" />
+                    <span className="text-xs font-medium">{award}</span>
                   </div>
                 ),
               )}
@@ -299,20 +299,20 @@ export default function AboutPage() {
         <section className="px-4">
           <div className="container mx-auto max-w-4xl">
             <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-              <CardContent className="p-8 lg:p-12 text-center">
-                <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-4">Join our growing team</h2>
-                <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
+              <CardContent className="p-6 lg:p-8 text-center">
+                <h2 className="text-xl lg:text-2xl font-bold text-foreground mb-3">Join our growing team</h2>
+                <p className="text-muted-foreground mb-4 text-sm max-w-xl mx-auto">
                   We&apos;re always looking for talented individuals who share our passion for helping businesses
                   succeed.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button asChild size="lg">
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button asChild size="sm">
                     <Link href="/careers">
                       View Open Positions
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                      <ArrowRight className="ml-2 h-3 w-3" />
                     </Link>
                   </Button>
-                  <Button asChild variant="outline" size="lg">
+                  <Button asChild variant="outline" size="sm">
                     <Link href="/contact">Contact Us</Link>
                   </Button>
                 </div>

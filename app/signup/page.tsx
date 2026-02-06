@@ -325,17 +325,17 @@ export default function SignupPage() {
                 )}
               </div>
 
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-2">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 min-w-0">
                   <Checkbox
                     id="terms"
                     checked={formData.agreeTerms}
                     onCheckedChange={(checked) => setFormData({ ...formData, agreeTerms: checked as boolean })}
-                    className="mt-0.5"
+                    className="mt-0 flex-shrink-0"
                   />
                   <Label
                     htmlFor="terms"
-                    className="text-sm font-normal cursor-pointer text-muted-foreground leading-relaxed"
+                    className="text-sm font-normal cursor-pointer text-muted-foreground leading-relaxed m-0 whitespace-nowrap"
                   >
                     I agree to the{" "}
                     <Link href="/terms" className="text-primary hover:underline font-medium">
@@ -353,7 +353,7 @@ export default function SignupPage() {
                     variant="ghost"
                     size="sm"
                     onClick={clearForm}
-                    className="text-xs text-muted-foreground hover:text-foreground flex-shrink-0"
+                    className="text-xs text-muted-foreground hover:text-foreground h-6 px-2 flex-shrink-0"
                   >
                     <X className="h-3 w-3 mr-1" />
                     Clear

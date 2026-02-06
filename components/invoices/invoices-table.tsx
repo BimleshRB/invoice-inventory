@@ -16,8 +16,11 @@ import Link from "next/link"
 interface InvoicesTableProps {
   invoices: Invoice[]
   onView: (invoice: Invoice) => void
+  onEdit: (invoice: Invoice) => void
   onStatusChange: (invoice: Invoice, status: Invoice["status"]) => void
   onDownload: (invoice: Invoice) => void
+  onCreateReturn: (invoice: Invoice) => void
+  onDelete?: (invoiceId: string | number) => void
 }
 
 const statusConfig = {
@@ -28,7 +31,7 @@ const statusConfig = {
   cancelled: { label: "Cancelled", className: "bg-muted text-muted-foreground line-through", icon: XCircle },
 }
 
-export function InvoicesTable({ invoices, onView, onStatusChange, onDownload }: InvoicesTableProps) {
+export function InvoicesTable({ invoices, onView, onEdit, onStatusChange, onDownload, onCreateReturn }: InvoicesTableProps) {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [typeFilter, setTypeFilter] = useState<string>("all")
@@ -45,11 +48,15 @@ export function InvoicesTable({ invoices, onView, onStatusChange, onDownload }: 
   }
 
   const filteredInvoices = invoices.filter((invoice) => {
+    const invoiceType = ((invoice as any).type || "out").toLowerCase()
+    const partyName = invoiceType === "in"
+      ? ((invoice as any).supplier?.name || (invoice as any).supplierName || invoice.customer?.name || "")
+      : (invoice.customer?.name || (invoice as any).customerName || "")
     const matchesSearch =
       (invoice.invoiceNumber || "").toLowerCase().includes(search.toLowerCase()) ||
-      (invoice.customer?.name || "").toLowerCase().includes(search.toLowerCase())
+      partyName.toLowerCase().includes(search.toLowerCase())
     const matchesStatus = statusFilter === "all" || invoice.status === statusFilter
-    const matchesType = typeFilter === "all" || (invoice as any).type === typeFilter
+    const matchesType = typeFilter === "all" || invoiceType === typeFilter
     return matchesSearch && matchesStatus && matchesType
   })
 
@@ -96,7 +103,7 @@ export function InvoicesTable({ invoices, onView, onStatusChange, onDownload }: 
           <TableHeader>
             <TableRow>
               <TableHead className="min-w-30">Invoice</TableHead>
-              <TableHead className="min-w-[150px]">Customer</TableHead>
+              <TableHead className="min-w-[150px]">Customer / Supplier</TableHead>
               <TableHead className="min-w-[90px]">Type</TableHead>
               <TableHead className="min-w-[100px]">Date</TableHead>
               <TableHead className="min-w-[100px]">Due Date</TableHead>
@@ -117,8 +124,18 @@ export function InvoicesTable({ invoices, onView, onStatusChange, onDownload }: 
               </TableRow>
             ) : (
               filteredInvoices.map((invoice) => {
-                const statusKey = (invoice.status && statusConfig[invoice.status]) ? invoice.status : "draft"
+                const invoiceType = ((invoice as any).type || "out").toLowerCase()
+                const isIntake = invoiceType === "in"
+                const partyName = isIntake
+                  ? ((invoice as any).supplier?.name || (invoice as any).supplierName || invoice.customer?.name || "-")
+                  : (invoice.customer?.name || (invoice as any).customerName || "-")
+                const partyEmail = isIntake
+                  ? ((invoice as any).supplier?.email || (invoice as any).supplierEmail || invoice.customer?.email || "")
+                  : (invoice.customer?.email || (invoice as any).customerEmail || "")
+                const normalizedStatus = invoice.status?.toLowerCase() || "draft"
+                const statusKey = (normalizedStatus && statusConfig[normalizedStatus]) ? normalizedStatus : "draft"
                 const status = statusConfig[statusKey]
+                const canReturn = normalizedStatus !== "draft" && normalizedStatus !== "cancelled"
                 return (
                   <TableRow key={invoice.id}>
                     <TableCell>
@@ -131,11 +148,11 @@ export function InvoicesTable({ invoices, onView, onStatusChange, onDownload }: 
                     </TableCell>
                     <TableCell>
                       <div className="min-w-0">
-                        <p className="font-medium text-foreground truncate">{invoice.customer?.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{invoice.customer?.email}</p>
+                        <p className="font-medium text-foreground truncate">{partyName}</p>
+                        <p className="text-xs text-muted-foreground truncate">{partyEmail}</p>
                       </div>
                     </TableCell>
-                    <TableCell className="text-muted-foreground capitalize">{((invoice as any).type || 'out') === 'out' ? 'Outgoing' : 'Intake'}</TableCell>
+                    <TableCell className="text-muted-foreground capitalize">{invoiceType === 'out' ? 'Outgoing' : 'Intake'}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {safeFormatDate(invoice.createdAt)}
                     </TableCell>
@@ -161,23 +178,33 @@ export function InvoicesTable({ invoices, onView, onStatusChange, onDownload }: 
                             <Eye className="mr-2 h-4 w-4" />
                             View Invoice
                           </DropdownMenuItem>
+                          {canReturn && (
+                            <DropdownMenuItem onClick={() => onCreateReturn(invoice)}>
+                              <FileText className="mr-2 h-4 w-4" />
+                              Create Return
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem onClick={() => onEdit(invoice)}>
+                            <FileText className="mr-2 h-4 w-4" />
+                            Edit Invoice
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => onDownload(invoice)}>
                             <Download className="mr-2 h-4 w-4" />
                             Download PDF
                           </DropdownMenuItem>
-                          {invoice.status === "draft" && (
+                          {normalizedStatus === "draft" && (
                             <DropdownMenuItem onClick={() => onStatusChange(invoice, "sent")}>
                               <Send className="mr-2 h-4 w-4" />
                               Mark as Sent
                             </DropdownMenuItem>
                           )}
-                          {(invoice.status === "sent" || invoice.status === "overdue") && (
+                          {(normalizedStatus === "sent" || normalizedStatus === "overdue") && (
                             <DropdownMenuItem onClick={() => onStatusChange(invoice, "paid")}>
                               <CheckCircle className="mr-2 h-4 w-4" />
                               Mark as Paid
                             </DropdownMenuItem>
                           )}
-                          {invoice.status !== "cancelled" && invoice.status !== "paid" && (
+                          {normalizedStatus !== "cancelled" && normalizedStatus !== "paid" && (
                             <DropdownMenuItem
                               className="text-destructive"
                               onClick={() => onStatusChange(invoice, "cancelled")}

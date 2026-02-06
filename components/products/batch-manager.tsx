@@ -377,9 +377,9 @@ export function ProductBatchManager({
                 type="number"
                 min="1"
                 placeholder="e.g., 100"
-                value={formData.quantity}
+                value={formData.quantity || ""}
                 onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, quantity: e.target.value }))
+                  setFormData((prev) => ({ ...prev, quantity: e.target.value ? parseInt(e.target.value) : "" }))
                 }
                 required
               />
@@ -408,9 +408,9 @@ export function ProductBatchManager({
                 type="number"
                 step="0.01"
                 placeholder="e.g., 10.50"
-                value={formData.costPrice}
+                value={formData.costPrice || ""}
                 onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, costPrice: e.target.value }))
+                  setFormData((prev) => ({ ...prev, costPrice: e.target.value ? parseFloat(e.target.value) : "" }))
                 }
               />
             </div>
@@ -422,9 +422,9 @@ export function ProductBatchManager({
                 type="number"
                 step="0.01"
                 placeholder="e.g., 12.99"
-                value={formData.sellingPrice}
+                value={formData.sellingPrice || ""}
                 onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, sellingPrice: e.target.value }))
+                  setFormData((prev) => ({ ...prev, sellingPrice: e.target.value ? parseFloat(e.target.value) : "" }))
                 }
               />
               <p className="text-xs text-muted-foreground">

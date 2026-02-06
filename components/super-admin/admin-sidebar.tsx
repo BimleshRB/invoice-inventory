@@ -86,7 +86,7 @@ function AdminSidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
     <>
       <Link
         href="/"
-        onClick={(e) => handleNavClick(e, "/dashboard/admin")}
+        onClick={onLinkClick}
         className="flex h-16 items-center gap-3 border-b border-border px-6 hover:bg-muted/70 dark:hover:bg-muted/60 transition-colors bg-card/80 backdrop-blur"
       >
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">

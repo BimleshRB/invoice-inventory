@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { Header } from "@/components/dashboard/header"
 import { BusinessInformation } from "@/components/settings/business-information"
 import { PersonalInformation } from "@/components/settings/personal-information"
@@ -11,6 +12,7 @@ import type { Store, Category } from "@/lib/types"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { API_BASE } from "@/lib/api-client"
+import { getAuthUser } from "@/hooks/use-auth-guard"
 
 type ProfileResponse = {
   username: string
@@ -32,9 +34,24 @@ type ProfileResponse = {
 }
 
 export default function SettingsPage() {
+  const router = useRouter()
   const [store, setStore] = useState<Store | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const { toast } = useToast()
+
+  // Access control: Only store owners, super admins, and admins can access settings
+  useEffect(() => {
+    const authUser = getAuthUser()
+    if (authUser?.isStoreAdmin) {
+      toast({
+        title: "Access Denied",
+        description: "Store admins do not have permission to access settings. Contact your store owner.",
+        variant: "destructive",
+      })
+      router.push("/dashboard")
+      return
+    }
+  }, [router, toast])
 
   useEffect(() => {
     // Try to load profile from backend if token available; fallback to local dataStore

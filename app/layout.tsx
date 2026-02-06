@@ -1,14 +1,14 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Inter, Geist_Mono } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ScrollToTop } from "@/components/scroll-to-top"
 import "./globals.css"
 import { generateOrganizationSchema, asJsonLd } from "@/lib/seo"
 import { dataStore } from "@/lib/store"
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
-const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" })
+// Using system fonts as fallback when Google Fonts is unavailable
+const inter = { variable: "--font-inter" }
+const geistMono = { variable: "--font-geist-mono" }
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://example.com"
 

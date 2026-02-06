@@ -79,75 +79,78 @@ export default function AdminOverview() {
   return (
     <div className="space-y-6 text-foreground">
       {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-card">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200 dark:border-blue-800 hover:shadow-lg transition-all">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-blue-900 dark:text-blue-100">Total Users</CardTitle>
+            <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalUsers}</div>
-            <p className="text-xs text-muted-foreground">Active user accounts</p>
+            <div className="text-3xl font-bold text-blue-900 dark:text-blue-100">{stats.totalUsers}</div>
+            <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">Active user accounts</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-card">
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border-green-200 dark:border-green-800 hover:shadow-lg transition-all">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Stores</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-green-900 dark:text-green-100">Total Stores</CardTitle>
+            <Building2 className="h-5 w-5 text-green-600 dark:text-green-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalStores}</div>
-            <p className="text-xs text-muted-foreground">Registered stores</p>
+            <div className="text-3xl font-bold text-green-900 dark:text-green-100">{stats.totalStores}</div>
+            <p className="text-xs text-green-700 dark:text-green-300 mt-1">Registered stores</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-card">
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 border-purple-200 dark:border-purple-800 hover:shadow-lg transition-all">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Admins</CardTitle>
-            <UserCog className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-purple-900 dark:text-purple-100">Total Admins</CardTitle>
+            <UserCog className="h-5 w-5 text-purple-600 dark:text-purple-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalAdmins}</div>
-            <p className="text-xs text-muted-foreground">System administrators</p>
+            <div className="text-3xl font-bold text-purple-900 dark:text-purple-100">{stats.totalAdmins}</div>
+            <p className="text-xs text-purple-700 dark:text-purple-300 mt-1">System administrators</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-card">
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-orange-200 dark:border-orange-800 hover:shadow-lg transition-all">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Payments</CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-orange-900 dark:text-orange-100">Total Payments</CardTitle>
+            <CreditCard className="h-5 w-5 text-orange-600 dark:text-orange-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalPayments}</div>
-            <p className="text-xs text-muted-foreground">Payment records</p>
+            <div className="text-3xl font-bold text-orange-900 dark:text-orange-100">{stats.totalPayments}</div>
+            <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">Payment records</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Recent Payments */}
-      <Card className="bg-card">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5" />
+      <Card className="bg-card shadow-lg">
+        <CardHeader className="border-b">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Activity className="h-5 w-5 text-primary" />
             Recent Payments
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           {stats.recentPayments.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No payment records yet</p>
+            <div className="text-center py-12">
+              <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+              <p className="text-sm text-muted-foreground">No payment records yet</p>
+            </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {stats.recentPayments.map((payment: any, index: number) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                  className="flex items-center justify-between p-4 border rounded-xl hover:bg-muted/50 hover:border-primary/50 transition-all"
                 >
                   <div className="flex-1">
-                    <p className="font-medium text-sm">
+                    <p className="font-medium text-sm text-foreground">
                       {payment.storeName || payment.userName || `Payment #${payment.id}`}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       {payment.description || payment.method || "Payment transaction"}
                     </p>
                   </div>

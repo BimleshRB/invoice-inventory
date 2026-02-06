@@ -34,7 +34,7 @@ const defaultFormData: Partial<Product> = {
   sku: "",
   description: "",
   categoryId: undefined,
-  minStockLevel: 10,
+  minStockLevel: undefined,
   unit: "pcs",
   barcode: "",
   isActive: true,
@@ -238,14 +238,14 @@ export function ProductForm({ open, onOpenChange, product, categories, onSubmit,
                   id="minStockLevel"
                   type="number"
                   min="0"
-                  value={formData.minStockLevel === 10 ? "" : formData.minStockLevel || ""}
+                  value={formData.minStockLevel ?? ""}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      minStockLevel: e.target.value ? Number.parseInt(e.target.value) : 10,
+                      minStockLevel: e.target.value ? Number.parseInt(e.target.value) : undefined,
                     })
                   }
-                  placeholder="10"
+                  placeholder="Enter minimum stock level"
                 />
               </div>
             </div>

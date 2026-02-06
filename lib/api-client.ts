@@ -3,7 +3,9 @@
  * Handles authentication, error handling, and request/response formatting
  * Industry-grade with proper error handling and retry logic
  */
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
+import { getStoreHostHeader } from './subdomain'
+
+export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/api'
 type RequestInit = {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
   headers?: Record<string, string>
@@ -44,11 +46,19 @@ export async function apiRequest<T = any>(
     headers['Authorization'] = `Bearer ${token}`
   }
   
+  // Add X-Store-Host header for multi-tenant store resolution
+  // Backend uses this to identify which store the request belongs to
+  const storeHost = getStoreHostHeader()
+  if (storeHost) {
+    headers['X-Store-Host'] = storeHost
+  }
+  
   // Debug logging
   console.log(`[API] ${options.method || 'GET'} ${endpoint}`, {
     hasToken: !!token,
     tokenPrefix: token ? token.substring(0, 20) + '...' : 'NO_TOKEN',
     headers: Object.keys(headers),
+    storeHost: storeHost || 'NO_STORE',
   })
 
   try {
@@ -174,6 +184,8 @@ export const productApi = {
   bulk: (products: any[]) => apiPost('/products/bulk', products),
   search: (query: string, page = 0, size = 10) =>
     apiGet(`/products/search?query=${query}&page=${page}&size=${size}`),
+  priceHistory: (id: string | number, page = 0, size = 20) =>
+    apiGet(`/products/${id}/price-history?page=${page}&size=${size}`),
 }
 
 /**
@@ -185,6 +197,7 @@ export const invoiceApi = {
   get: (id: string | number) => apiGet(`/invoices/${id}`),
   create: (data: any) => apiPost('/invoices', data),
   update: (id: string | number, data: any) => apiPut(`/invoices/${id}`, data),
+  updateStatus: (id: string | number, status: string) => apiPut(`/invoices/${id}`, { status }),
   delete: (id: string | number) => apiDelete(`/invoices/${id}`),
   nextNumber: () => apiGet('/invoices/next-number'),
   byCustomer: (customerId: string | number) => apiGet(`/invoices/customer/${customerId}`),
@@ -223,6 +236,36 @@ export const stockApi = {
     ),
   adjust: (productId: string | number, quantity: number, reason: string, type: 'in' | 'out') =>
     apiPost('/stock-movements', { productId, quantity, reason, type }),
+}
+
+/**
+ * Invoice Returns API endpoints
+ */
+export const returnsApi = {
+  list: (options?: { page?: number; size?: number; status?: string; returnType?: string; storeId?: string }) => {
+    const page = options?.page || 0
+    const size = options?.size || 10
+    const status = options?.status
+    const returnType = options?.returnType
+    const storeId = options?.storeId
+    return apiGet(
+      `/invoices/returns?page=${page}&size=${size}${status ? `&status=${status}` : ''}${
+        returnType ? `&returnType=${returnType}` : ''
+      }${storeId ? `&storeId=${storeId}` : ''}`
+    )
+  },
+  get: (id: string | number) => apiGet(`/invoices/returns/${id}`),
+  getByNumber: (returnNumber: string) => apiGet(`/invoices/returns/number/${returnNumber}`),
+  create: (data: any) => apiPost('/invoices/returns', data),
+  approve: (id: string | number) => apiPost(`/invoices/returns/${id}/approve`, {}),
+  complete: (id: string | number) => apiPost(`/invoices/returns/${id}/complete`, {}),
+  reject: (id: string | number, reason: string) => apiPost(`/invoices/returns/${id}/reject`, { reason }),
+  getByInvoice: (invoiceId: string | number) => apiGet(`/invoices/returns/by-invoice/${invoiceId}`),
+  getPending: () => apiGet('/invoices/returns/pending'),
+  getSummary: (startDate?: string, endDate?: string) =>
+    apiGet(
+      `/invoices/returns/summary${startDate && endDate ? `?startDate=${startDate}&endDate=${endDate}` : ''}`
+    ),
 }
 
 /**
@@ -340,6 +383,14 @@ export interface Category {
   description?: string
   storeId?: string
   createdAt?: string
+}
+
+// Unified API Client object for convenience
+export const apiClient = {
+  get: apiGet,
+  post: apiPost,
+  put: apiPut,
+  delete: apiDelete,
 }
 
 export interface StockMovement {

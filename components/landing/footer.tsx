@@ -227,14 +227,6 @@ export function LandingFooter() {
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} InventoryFlow, Inc. All rights reserved.
           </p>
-          <div className="flex items-center gap-1">
-            <span className="text-xs text-muted-foreground mr-2">Built with</span>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="px-2 py-1 rounded bg-muted">Next.js</span>
-              <span className="px-2 py-1 rounded bg-muted">TypeScript</span>
-              <span className="px-2 py-1 rounded bg-muted">Tailwind</span>
-            </div>
-          </div>
         </div>
       </div>
     </footer>

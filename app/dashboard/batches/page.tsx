@@ -27,8 +27,7 @@ interface ProductBatch {
   productId: string
   productName: string
   batchNumber: string
-  quantity: number
-  costPrice: number
+  purchaseCost: number
   sellingPrice?: number
   expiryDate: string
   createdAt: string
@@ -78,8 +77,7 @@ export default function BatchesPage() {
           productId: batch.productId || batch.product?.id,
           productName: batch.product?.name || batch.productName || "Unknown",
           batchNumber: batch.batchNumber,
-          quantity: batch.quantity,
-          costPrice: batch.costPrice || 0,
+          purchaseCost: batch.purchaseCost || 0,
           sellingPrice: batch.product?.sellingPrice || batch.sellingPrice || 0,
           expiryDate: batch.expiryDate,
           createdAt: batch.createdAt,
@@ -122,8 +120,6 @@ export default function BatchesPage() {
     // Sort
     if (sortBy === "expiry-soon") {
       filtered.sort((a, b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime())
-    } else if (sortBy === "quantity-high") {
-      filtered.sort((a, b) => b.quantity - a.quantity)
     } else if (sortBy === "recent") {
       filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     }
@@ -144,12 +140,8 @@ export default function BatchesPage() {
     return expiry < today
   }
 
-  const getTotalValue = () => {
-    return filteredBatches.reduce((sum, batch) => sum + batch.quantity * batch.costPrice, 0)
-  }
-
-  const getTotalQuantity = () => {
-    return filteredBatches.reduce((sum, batch) => sum + batch.quantity, 0)
+  const getTotalCost = () => {
+    return filteredBatches.reduce((sum, batch) => sum + batch.purchaseCost, 0)
   }
 
   return (
@@ -158,7 +150,7 @@ export default function BatchesPage() {
 
       <div className="container mx-auto p-4 space-y-6">
         {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardContent className="pt-6">
               <div className="space-y-2">
@@ -172,35 +164,25 @@ export default function BatchesPage() {
             <CardContent className="pt-6">
               <div className="space-y-2">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                  <Package className="h-4 w-4" />
-                  Total Quantity
-                </p>
-                <p className="text-3xl font-bold">{getTotalQuantity().toLocaleString()}</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                  <DollarSign className="h-4 w-4" />
-                  Total Value
-                </p>
-                <p className="text-3xl font-bold truncate">{formatCurrency(getTotalValue())}</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
                   <TrendingUp className="h-4 w-4" />
                   Expiring Soon
                 </p>
                 <p className="text-3xl font-bold">
                   {filteredBatches.filter((b) => isExpiringSoon(b.expiryDate)).length}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Expired
+                </p>
+                <p className="text-3xl font-bold">
+                  {filteredBatches.filter((b) => isExpired(b.expiryDate)).length}
                 </p>
               </div>
             </CardContent>
@@ -239,7 +221,6 @@ export default function BatchesPage() {
                 <SelectContent>
                   <SelectItem value="recent">Recently Added</SelectItem>
                   <SelectItem value="expiry-soon">Expiring Soon</SelectItem>
-                  <SelectItem value="quantity-high">Highest Quantity</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -266,7 +247,7 @@ export default function BatchesPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="min-w-[150px]">Batch Number</TableHead>
-                      <TableHead className="text-right">Quantity</TableHead>
+                      <TableHead className="text-right">Purchase Cost</TableHead>
                       <TableHead className="min-w-[120px]">Status</TableHead>
                       <TableHead className="text-right">Added On</TableHead>
                     </TableRow>
@@ -279,7 +260,7 @@ export default function BatchesPage() {
                             {batch.batchNumber}
                           </Link>
                         </TableCell>
-                        <TableCell className="text-right font-semibold">{batch.quantity.toLocaleString()}</TableCell>
+                        <TableCell className="text-right font-semibold">{formatCurrency(batch.purchaseCost)}</TableCell>
                         <TableCell>
                           {isExpired(batch.expiryDate) ? (
                             <Badge variant="destructive" className="gap-1">

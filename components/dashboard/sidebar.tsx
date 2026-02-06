@@ -29,6 +29,7 @@ import {
   ClipboardList,
   Boxes,
   ClipboardCheck,
+  TrendingDown,
 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { API_BASE } from "@/lib/api-client"
@@ -39,16 +40,16 @@ const navigation = [
   { name: "Products", href: "/dashboard/products", icon: Package },
   { name: "Product Batches", href: "/dashboard/batches", icon: Upload },
   { name: "Invoices", href: "/dashboard/invoices", icon: FileText },
+  { name: "Returns", href: "/dashboard/returns", icon: TrendingDown },
   { name: "Customers", href: "/dashboard/customers", icon: Users },
   { name: "Stock Movements", href: "/dashboard/stock", icon: ArrowUpDown },
-  { name: "Procurement", href: "/dashboard/procurement", icon: Shield },
+  // { name: "Procurement", href: "/dashboard/procurement", icon: Shield },
   { name: "Suppliers", href: "/dashboard/procurement/suppliers", icon: ClipboardList },
-  { name: "Purchase Orders", href: "/dashboard/procurement/purchase-orders", icon: Boxes },
-  { name: "Goods Receipts", href: "/dashboard/procurement/goods-receipts", icon: ClipboardCheck },
+  // { name: "Purchase Orders", href: "/dashboard/procurement/purchase-orders", icon: Boxes },
+  // { name: "Goods Receipts", href: "/dashboard/procurement/goods-receipts", icon: ClipboardCheck },
   { name: "Reports", href: "/dashboard/reports", icon: BarChart3 },
   { name: "Import/Export", href: "/dashboard/import", icon: Upload },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings },
-  { name: "Documentation", href: "/dashboard/docs", icon: BookOpen },
+  { name: "Settings", href: "/dashboard/settings", icon: Settings, ownerOnly: true },
 ]
 
 const adminNavigation = [
@@ -116,6 +117,11 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
       <nav className="flex-1 space-y-1 p-4">
         {/* Regular users (non-admin) see standard store navigation */}
         {authUser && (authUser.isStoreOwner || authUser.isStoreAdmin || authUser.isAdmin || authUser.isSuperAdmin || (!authUser.isAdmin && !authUser.isSuperAdmin)) && navigation.map((item) => {
+          // Hide owner-only items from store admins
+          if ((item as any).ownerOnly && authUser.isStoreAdmin) {
+            return null
+          }
+          
           const isActive = pathname === item.href
           return (
             <Link

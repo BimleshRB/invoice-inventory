@@ -24,6 +24,9 @@ import {
   Mail,
   ArrowRight,
   CheckCircle,
+  TrendingUp,
+  Zap,
+  Headphones,
 } from "lucide-react"
 
 const categories = [
@@ -142,63 +145,66 @@ export default function HelpPage() {
   )
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background via-background to-muted/30">
       <LandingHeader />
 
-      <main className="flex-1 pt-24 pb-16">
-        {/* Hero */}
-        <section className="px-4 mb-16">
+      <main className="flex-1 pt-16 pb-12">
+        {/* Hero Section */}
+        <section className="px-4 mb-14">
           <div className="container mx-auto max-w-7xl">
-            <div className="text-center max-w-3xl mx-auto">
-              <Badge variant="secondary" className="mb-4">
-                Help Center
+            <div className="text-center max-w-4xl mx-auto">
+              <Badge variant="secondary" className="mb-3 bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 text-xs">
+                📚 Help Center
               </Badge>
-              <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">How can we help you?</h1>
-              <p className="text-lg text-muted-foreground mb-8">
-                Search our knowledge base or browse categories to find answers to your questions.
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground mb-4 text-balance">
+                How can we help you?
+              </h1>
+              <p className="text-sm sm:text-base text-muted-foreground mb-6 max-w-2xl mx-auto">
+                Search our knowledge base or browse categories to find answers. We're here to help you succeed.
               </p>
 
               {/* Search */}
-              <div className="max-w-xl mx-auto relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search for help articles..."
-                  className="h-14 pl-12 pr-4 text-base border-2"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+              <div className="max-w-2xl mx-auto relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-chart-1/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative flex items-center bg-card border-2 border-border rounded-lg p-1">
+                  <Search className="h-4 w-4 text-muted-foreground ml-3" />
+                  <Input
+                    type="search"
+                    placeholder="Search for help articles, topics, or keywords..."
+                    className="h-10 px-3 border-0 bg-transparent focus-visible:ring-0 text-sm placeholder:text-muted-foreground"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
               </div>
             </div>
           </div>
         </section>
 
         {/* Categories */}
-        <section className="px-4 mb-16">
+        <section className="px-4 mb-14">
           <div className="container mx-auto max-w-7xl">
-            <h2 className="text-xl font-semibold text-foreground mb-6">Browse by Category</h2>
+            <div className="mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">Browse by Category</h2>
+              <p className="text-muted-foreground mt-1 text-sm">Explore topics organized by subject area</p>
+            </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {categories.map((category, i) => (
                 <Card
                   key={i}
-                  className="group border-2 hover:border-primary/50 transition-all cursor-pointer overflow-hidden"
+                  className="group relative overflow-hidden border-2 border-border/60 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 cursor-pointer"
                 >
-                  <CardContent className="p-6 relative">
-                    <div
-                      className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-100 transition-opacity`}
-                    />
-                    <div className="relative flex items-start gap-4">
-                      <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
-                        <category.icon className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground mb-1">{category.title}</h3>
-                        <p className="text-sm text-muted-foreground mb-2">{category.description}</p>
-                        <Badge variant="secondary" className="text-xs">
-                          {category.articles} articles
-                        </Badge>
-                      </div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <CardContent className="p-7 relative z-10">
+                    <div className="h-11 w-11 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-3 group-hover:from-primary/30 group-hover:to-primary/20 transition-colors">
+                      <category.icon className="h-5 w-5 text-primary" />
                     </div>
+                    <h3 className="text-base font-bold text-foreground mb-1">{category.title}</h3>
+                    <p className="text-xs text-muted-foreground mb-3">{category.description}</p>
+                    <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-xs">
+                      📄 {category.articles} articles
+                    </Badge>
+                    <ArrowRight className="h-4 w-4 text-primary mt-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all" />
                   </CardContent>
                 </Card>
               ))}
@@ -207,33 +213,38 @@ export default function HelpPage() {
         </section>
 
         {/* FAQs and Popular Articles */}
-        <section className="px-4 mb-16">
+        <section className="px-4 mb-12">
           <div className="container mx-auto max-w-7xl">
-            <div className="grid lg:grid-cols-3 gap-8">
+            <div className="grid lg:grid-cols-3 gap-6">
               {/* FAQs */}
               <div className="lg:col-span-2">
-                <h2 className="text-xl font-semibold text-foreground mb-6">Frequently Asked Questions</h2>
-                <Card className="border-2">
-                  <CardContent className="p-6">
+                <div className="mb-6">
+                  <h2 className="text-xl sm:text-2xl font-bold text-foreground">Frequently Asked Questions</h2>
+                  <p className="text-muted-foreground mt-1 text-sm">Quick answers to common questions</p>
+                </div>
+                <Card className="border-2 border-border/60">
+                  <CardContent className="p-4">
                     <Accordion type="single" collapsible className="w-full">
                       {filteredFaqs.map((faq, i) => (
-                        <AccordionItem key={i} value={`item-${i}`} className="border-b last:border-0">
-                          <AccordionTrigger className="text-left hover:no-underline py-4">
-                            <span className="flex items-start gap-3 pr-4">
-                              <HelpCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                              <span className="font-medium">{faq.question}</span>
+                        <AccordionItem key={i} value={`item-${i}`} className="border-b border-border/50 last:border-0">
+                          <AccordionTrigger className="text-left hover:no-underline py-3 hover:text-primary transition-colors">
+                            <span className="flex items-start gap-3 pr-4 text-sm font-semibold">
+                              {faq.question}
                             </span>
                           </AccordionTrigger>
-                          <AccordionContent className="text-muted-foreground pl-8 pb-4">{faq.answer}</AccordionContent>
+                          <AccordionContent className="text-muted-foreground pb-3 text-xs leading-relaxed">
+                            {faq.answer}
+                          </AccordionContent>
                         </AccordionItem>
                       ))}
                     </Accordion>
                     {filteredFaqs.length === 0 && (
-                      <div className="text-center py-12">
-                        <HelpCircle className="h-12 w-12 text-muted-foreground/40 mx-auto mb-4" />
-                        <p className="text-muted-foreground">
-                          No results found for &quot;{searchQuery}&quot;. Try a different search term.
+                      <div className="text-center py-8">
+                        <HelpCircle className="h-12 w-12 text-muted-foreground/20 mx-auto mb-3" />
+                        <p className="text-muted-foreground font-medium text-sm">
+                          No results found for &quot;{searchQuery}&quot;
                         </p>
+                        <p className="text-xs text-muted-foreground mt-1">Try a different search term or browse categories above</p>
                       </div>
                     )}
                   </CardContent>
@@ -241,51 +252,59 @@ export default function HelpPage() {
               </div>
 
               {/* Sidebar */}
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* Popular Articles */}
-                <Card className="border-2">
-                  <CardHeader>
-                    <CardTitle className="text-base">Popular Articles</CardTitle>
+                <Card className="border-2 border-border/60 hover:border-border transition-colors">
+                  <CardHeader className="border-b border-border/50 pb-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-primary" />
+                      Popular Articles
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="p-4 space-y-2">
                     {popularArticles.map((article, i) => (
                       <Link
                         key={i}
                         href="#"
-                        className="flex items-center justify-between py-2 text-sm hover:text-primary transition-colors"
+                        className="flex items-center justify-between py-2 px-2 rounded-lg hover:bg-muted/50 transition-colors group"
                       >
-                        <span className="flex items-center gap-2">
-                          <CheckCircle className="h-4 w-4 text-success" />
-                          {article.title}
+                        <span className="flex items-center gap-2 flex-1 min-w-0">
+                          <CheckCircle className="h-3 w-3 text-success flex-shrink-0" />
+                          <span className="text-xs font-medium text-foreground group-hover:text-primary transition-colors truncate">
+                            {article.title}
+                          </span>
                         </span>
-                        <span className="text-xs text-muted-foreground">{article.views}</span>
+                        <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">{article.views}</span>
                       </Link>
                     ))}
                   </CardContent>
                 </Card>
 
                 {/* Quick Links */}
-                <Card className="border-2">
-                  <CardHeader>
-                    <CardTitle className="text-base">Quick Links</CardTitle>
+                <Card className="border-2 border-border/60 hover:border-border transition-colors">
+                  <CardHeader className="border-b border-border/50 pb-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Zap className="h-4 w-4 text-primary" />
+                      Quick Links
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-2">
-                    <Button asChild variant="outline" className="w-full justify-start bg-transparent">
+                  <CardContent className="p-4 space-y-2">
+                    <Button asChild variant="outline" className="w-full justify-start h-9 hover:bg-muted/50 border-border/60 text-sm">
                       <Link href="/docs">
-                        <BookOpen className="mr-2 h-4 w-4" />
-                        Documentation
+                        <BookOpen className="mr-2 h-3 w-3 text-primary" />
+                        <span>Documentation</span>
                       </Link>
                     </Button>
-                    <Button asChild variant="outline" className="w-full justify-start bg-transparent">
+                    <Button asChild variant="outline" className="w-full justify-start h-9 hover:bg-muted/50 border-border/60 text-sm">
                       <Link href="#">
-                        <Video className="mr-2 h-4 w-4" />
-                        Video Tutorials
+                        <Video className="mr-2 h-3 w-3 text-primary" />
+                        <span>Video Tutorials</span>
                       </Link>
                     </Button>
-                    <Button asChild variant="outline" className="w-full justify-start bg-transparent">
+                    <Button asChild variant="outline" className="w-full justify-start h-9 hover:bg-muted/50 border-border/60 text-sm">
                       <Link href="#">
-                        <MessageSquare className="mr-2 h-4 w-4" />
-                        Community Forum
+                        <MessageSquare className="mr-2 h-3 w-3 text-primary" />
+                        <span>Community Forum</span>
                       </Link>
                     </Button>
                   </CardContent>
@@ -295,45 +314,41 @@ export default function HelpPage() {
           </div>
         </section>
 
-        {/* Contact Support */}
+        {/* Contact Support CTA */}
         <section className="px-4">
           <div className="container mx-auto max-w-7xl">
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card className="border-2 hover:border-primary/30 transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-primary" />
+            <div className="grid md:grid-cols-2 gap-4">
+              <Card className="border-2 border-border/60 hover:border-primary/30 transition-all duration-300 group hover:shadow-lg hover:shadow-primary/10">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <BookOpen className="h-4 w-4 text-primary" />
                     Documentation
                   </CardTitle>
-                  <CardDescription>
-                    Explore our comprehensive documentation and API reference for developers.
-                  </CardDescription>
+                  <CardDescription className="text-xs">Explore comprehensive guides and API references for developers</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button asChild variant="outline" className="w-full bg-transparent">
+                  <Button asChild className="w-full h-9 font-semibold text-sm">
                     <Link href="/docs">
                       View Documentation
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                      <ArrowRight className="ml-2 h-3 w-3 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </Button>
                 </CardContent>
               </Card>
 
-              <Card className="border-2 hover:border-primary/30 transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Mail className="h-5 w-5 text-primary" />
+              <Card className="border-2 border-border/60 hover:border-primary/30 transition-all duration-300 group hover:shadow-lg hover:shadow-primary/10">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Headphones className="h-4 w-4 text-primary" />
                     Contact Support
                   </CardTitle>
-                  <CardDescription>
-                    Can&apos;t find what you&apos;re looking for? Our support team is here to help.
-                  </CardDescription>
+                  <CardDescription className="text-xs">Can't find what you need? Our support team is here to help you 24/7</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button asChild className="w-full">
+                  <Button asChild className="w-full h-9 font-semibold text-sm">
                     <Link href="/contact">
                       Contact Us
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                      <ArrowRight className="ml-2 h-3 w-3 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </Button>
                 </CardContent>

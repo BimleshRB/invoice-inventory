@@ -62,18 +62,17 @@ export default function ReportsPage() {
           dashboardApi.getRecentActivity(0, 10),
         ])
 
-        setStats(statsRes)
-        // Ensure all responses are arrays
-        setTopProducts(Array.isArray(productsRes) ? productsRes : [])
-        setChartData(Array.isArray(chartRes) ? chartRes : [])
-        setRecentActivity(Array.isArray(activityRes) ? activityRes : [])
+        setStats(statsRes?.data || statsRes || null)
+        // Ensure all responses are arrays - handle both direct arrays and paginated responses
+        setTopProducts(Array.isArray(productsRes) ? productsRes : (productsRes?.data ? productsRes.data : []))
+        setChartData(Array.isArray(chartRes) ? chartRes : (chartRes?.data ? chartRes.data : []))
+        
+        // Recent activity comes as array directly
+        const activityData = Array.isArray(activityRes) ? activityRes : (activityRes?.data ? activityRes.data : [])
+        setRecentActivity(activityData)
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error)
-        // Reset to empty arrays on error
-        setStats(null)
-        setTopProducts([])
-        setChartData([])
-        setRecentActivity([])
+        // Keep current data on error, don't reset
       } finally {
         setLoading(false)
       }
@@ -206,7 +205,7 @@ ${recentActivity.map((a) => `${a.createdAt}: ${a.description} - ${a.status}`).jo
           <Card>
             <CardHeader>
               <CardTitle className="text-base sm:text-lg">Sales Trend</CardTitle>
-              <CardDescription>Revenue trend ({period})</CardDescription>
+              <CardDescription>Revenue trend ({period === 'week' ? 'Weekly' : 'Monthly'})</CardDescription>
             </CardHeader>
             <CardContent>
               {Array.isArray(chartData) && chartData.length > 0 ? (
@@ -222,7 +221,10 @@ ${recentActivity.map((a) => `${a.createdAt}: ${a.description} - ${a.status}`).jo
                   </BarChart>
                 </ChartContainer>
               ) : (
-                <p className="text-sm text-muted-foreground">No data available</p>
+                <div className="flex flex-col items-center justify-center h-72 text-center">
+                  <p className="text-sm text-muted-foreground mb-2">No sales data available</p>
+                  <p className="text-xs text-muted-foreground">Create and mark invoices as paid to see sales trends</p>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -235,19 +237,25 @@ ${recentActivity.map((a) => `${a.createdAt}: ${a.description} - ${a.status}`).jo
             <CardContent>
               <div className="space-y-3">
                 {Array.isArray(topProducts) && topProducts.length > 0 ? (
-                  topProducts.slice(0, 5).map((product, index) => (
-                    <div key={index} className="flex items-center justify-between border-b pb-2 last:border-0">
-                      <div>
-                        <p className="font-medium text-sm">{product.name || 'Unknown'}</p>
-                        <p className="text-xs text-muted-foreground">{product.quantity || 0} units sold</p>
+                  topProducts.slice(0, 5).map((product, index) => {
+                    const revenue = typeof product.revenue === "string" ? parseFloat(product.revenue) : product.revenue || 0
+                    return (
+                      <div key={index} className="flex items-center justify-between border-b pb-2 last:border-0">
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{product.name || 'Unknown'}</p>
+                        </div>
+                        <p className="font-bold text-sm ml-2 shrink-0">
+                          {formatCurrency(revenue)}
+                        </p>
                       </div>
-                      <p className="font-bold text-sm">
-                        {formatCurrency(typeof product.revenue === "string" ? parseFloat(product.revenue) : product.revenue || 0)}
-                      </p>
-                    </div>
-                  ))
+                    )
+                  })
                 ) : (
-                  <p className="text-sm text-muted-foreground">No product data available</p>
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <Package className="h-8 w-8 text-muted-foreground/50 mb-2" />
+                    <p className="text-sm text-muted-foreground">No product data available</p>
+                    <p className="text-xs text-muted-foreground">Create and complete invoices to see top products</p>
+                  </div>
                 )}
               </div>
             </CardContent>
@@ -273,24 +281,41 @@ ${recentActivity.map((a) => `${a.createdAt}: ${a.description} - ${a.status}`).jo
                 </TableHeader>
                 <TableBody>
                   {Array.isArray(recentActivity) && recentActivity.length > 0 ? (
-                    recentActivity.slice(0, 10).map((activity, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="text-xs sm:text-sm">{activity.description || 'N/A'}</TableCell>
-                        <TableCell className="text-xs sm:text-sm font-medium">
-                          {formatCurrency(typeof activity.amount === "string" ? parseFloat(activity.amount) : activity.amount || 0)}
-                        </TableCell>
-                        <TableCell className="text-xs sm:text-sm">
-                          <Badge variant={activity.status === "paid" ? "default" : "secondary"}>
-                            {activity.status || 'unknown'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-xs sm:text-sm">{format(new Date(activity.createdAt), "MMM dd, yyyy")}</TableCell>
-                      </TableRow>
-                    ))
+                    recentActivity.slice(0, 10).map((activity, index) => {
+                      const amount = typeof activity.amount === "string" ? parseFloat(activity.amount) : activity.amount || 0
+                      return (
+                        <TableRow key={activity.id || index}>
+                          <TableCell className="text-xs sm:text-sm font-medium">{activity.description || 'N/A'}</TableCell>
+                          <TableCell className="text-xs sm:text-sm font-medium">
+                            {formatCurrency(amount)}
+                          </TableCell>
+                          <TableCell className="text-xs sm:text-sm">
+                            <Badge 
+                              variant={
+                                activity.status === "paid" 
+                                  ? "default" 
+                                  : activity.status === "pending"
+                                  ? "secondary"
+                                  : "outline"
+                              }
+                            >
+                              {activity.status || 'unknown'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-xs sm:text-sm whitespace-nowrap">
+                            {format(new Date(activity.createdAt), "MMM dd, yyyy")}
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center text-xs sm:text-sm text-muted-foreground py-4">
-                        No activity records available
+                      <TableCell colSpan={4} className="text-center text-xs sm:text-sm text-muted-foreground py-8">
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          <ShoppingCart className="h-8 w-8 text-muted-foreground/50" />
+                          <span>No activity records available</span>
+                          <span className="text-xs">Create invoices to see recent activity</span>
+                        </div>
                       </TableCell>
                     </TableRow>
                   )}

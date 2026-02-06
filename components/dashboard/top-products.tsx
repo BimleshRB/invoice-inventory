@@ -19,7 +19,7 @@ export function TopProducts({ products }: TopProductsProps) {
             <div key={product.name} className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="font-medium text-foreground">{product.name}</span>
-                <span className="text-muted-foreground">{product.quantity} sold</span>
+                <span className="text-muted-foreground">{product.quantity} sales</span>
               </div>
               <Progress value={(product.quantity / maxQuantity) * 100} className="h-2" />
             </div>

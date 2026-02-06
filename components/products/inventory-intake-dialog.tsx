@@ -354,7 +354,7 @@ export function InventoryIntakeDialog({
                           placeholder="Enter quantity"
                           className="h-10 text-sm"
                           value={formData.quantity || ""}
-                          onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
+                          onChange={(e) => setFormData({ ...formData, quantity: e.target.value ? parseInt(e.target.value) : "" })}
                         />
                       </div>
 
@@ -383,10 +383,10 @@ export function InventoryIntakeDialog({
                           type="number"
                           step="0.01"
                           min="0"
-                          placeholder="0.00"
+                          placeholder="Enter cost price"
                           className="h-10 text-sm"
                           value={formData.costPrice || ""}
-                          onChange={(e) => setFormData({ ...formData, costPrice: parseFloat(e.target.value) || 0 })}
+                          onChange={(e) => setFormData({ ...formData, costPrice: e.target.value ? parseFloat(e.target.value) : "" })}
                         />
                       </div>
 
@@ -399,10 +399,10 @@ export function InventoryIntakeDialog({
                           type="number"
                           step="0.01"
                           min="0"
-                          placeholder="0.00"
+                          placeholder="Enter selling price"
                           className="h-10 text-sm"
                           value={formData.sellingPrice || ""}
-                          onChange={(e) => setFormData({ ...formData, sellingPrice: parseFloat(e.target.value) || 0 })}
+                          onChange={(e) => setFormData({ ...formData, sellingPrice: e.target.value ? parseFloat(e.target.value) : "" })}
                         />
                       </div>
                     </div>

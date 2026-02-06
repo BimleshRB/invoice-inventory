@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { API_BASE } from "@/lib/api-client"
 import { getAuthUser, isTokenExpired } from "@/hooks/use-auth-guard"
+import { performPostLoginRedirect } from "@/lib/auth-redirect"
 
 const STORAGE_KEY = "login_form"
 
@@ -43,11 +44,25 @@ export default function LoginPage() {
     if (token && !isTokenExpired(token)) {
       const authUser = getAuthUser()
       if (authUser) {
-        if (authUser.isSuperAdmin || authUser.isAdmin) {
-          router.push("/dashboard/admin")
-        } else {
-          router.push("/dashboard")
+        // Fetch profile and perform appropriate redirect
+        const fetchProfileAndRedirect = async () => {
+          try {
+            const profileRes = await fetch(`${API_BASE}/profile/me`, {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            
+            if (profileRes.ok) {
+              const profile = await profileRes.json()
+              performPostLoginRedirect(authUser, profile, router)
+            } else {
+              performPostLoginRedirect(authUser, undefined, router)
+            }
+          } catch {
+            performPostLoginRedirect(authUser, undefined, router)
+          }
         }
+        
+        fetchProfileAndRedirect()
       }
     }
   }, [router])
@@ -110,31 +125,45 @@ export default function LoginPage() {
         title: "Welcome back",
         description: "Signed in successfully. Redirecting...",
       })
-      // Redirect based on role
-      const role = getRoleFromToken(data.token)
-      if (role === "ROLE_SUPER_ADMIN" || role === "ROLE_ADMIN") {
-        router.push("/dashboard/admin")
-      } else {
-        // check profile status for non-admin users
+      
+      // Get auth user and profile for redirect
+      const authUser = getAuthUser()
+      if (!authUser) {
+        router.push("/dashboard")
+        return
+      }
+      
+      // For non-admin users, fetch profile to get store info
+      if (!authUser.isSuperAdmin && !authUser.isAdmin) {
         try {
           const token = data.token
           const profileRes = await fetch(`${API_BASE}/profile/me`, {
             headers: { Authorization: `Bearer ${token}` },
           })
+          
           if (profileRes.ok) {
             const profile = await profileRes.json()
-            if (profile.profileCompleted) {
-              router.push("/dashboard")
-            } else {
+            
+            // Store admins bypass profile completion check - they're created by store owners
+            // Only regular users and store owners need to complete their profile
+            if (!authUser.isStoreAdmin && !profile.profileCompleted) {
               router.push("/signup/details")
+              return
             }
+            
+            // Perform redirect with store information
+            performPostLoginRedirect(authUser, profile, router)
           } else {
-            // if profile endpoint not accessible, go to dashboard
-            router.push("/dashboard")
+            // If profile endpoint fails, redirect to dashboard
+            performPostLoginRedirect(authUser, undefined, router)
           }
         } catch (err) {
-          router.push("/dashboard")
+          // On error, redirect to dashboard
+          performPostLoginRedirect(authUser, undefined, router)
         }
+      } else {
+        // Admin/SuperAdmin - redirect immediately
+        performPostLoginRedirect(authUser, undefined, router)
       }
     } catch (err) {
       toast({
